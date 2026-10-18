@@ -3,6 +3,8 @@
 ## Preguntas/A analizar
 ¿Cuáles pueden ser atributos relevantes para predecir el objeto al que corresponde el dibujo? ¿Cuáles no? ¿Creen que se pueden descartar atributos?
 IDEA: Los "atributos" son cada pixel, por lo que no se pueden sacar, es lo que compone al dibujo, como mucho se podria sacar a los del borde, pero estariamos asumiendo que nadie pinto y dibujo sobre el borde, lo cual descartariamos material de informacion
+Un píxel puede ser útil si sus valores ayudan a diferenciar los dibujos de distintas clases. Que un píxel varíe no significa necesariamente que sea útil: podría variar mucho entre dibujos de una misma clase y no ayudar a distinguirla de las demás.
+
 ¿Hay objetos cuyos dibujos son más parecidos entre sí? Por ejemplo, ¿Son más fáciles de diferenciar las imágenes correspondientes a la clase 2
 (cuadrado) de las de la clase 9 (casa) que de las de la clase 6 (estrella)?
 IDEA: La respuesta logicamente es si, pero como se justifica con analisis de datos y no saltar directo a knn? 
