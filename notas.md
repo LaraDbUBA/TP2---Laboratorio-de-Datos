@@ -1,18 +1,12 @@
 # Notas TP2
 
 ## Preguntas/A analizar
-¿Cuáles pueden ser atributos relevantes para predecir el objeto al que corresponde el dibujo? ¿Cuáles no? ¿Creen que se pueden descartar atributos?
-IDEA: Los "atributos" son cada pixel, por lo que no se pueden sacar, es lo que compone al dibujo, como mucho se podria sacar a los del borde, pero estariamos asumiendo que nadie pinto y dibujo sobre el borde, lo cual descartariamos material de informacion
-Un píxel puede ser útil si sus valores ayudan a diferenciar los dibujos de distintas clases. Que un píxel varíe no significa necesariamente que sea útil: podría variar mucho entre dibujos de una misma clase y no ayudar a distinguirla de las demás.
-
-¿Hay objetos cuyos dibujos son más parecidos entre sí? Por ejemplo, ¿Son más fáciles de diferenciar las imágenes correspondientes a la clase 2
-(cuadrado) de las de la clase 9 (casa) que de las de la clase 6 (estrella)?
-IDEA: La respuesta logicamente es si, pero como se justifica con analisis de datos y no saltar directo a knn? 
-Tomar una de las clases, por ejemplo la clase 3 (pez), ¿Son todas las imágenes muy similares entre sí?
-IDEA: Deberian ser parecidas, con outliers
-Este dataset está compuesto por imágenes, esto plantea una diferencia frente a los datos que utilizamos en las clases (por ejemplo, el dataset de
-Titanic). ¿Creen que esto complica la exploración de los datos?
-Si porque hay que analizar el conjunto
 
 ## Hacer
-Hacer en GQM formalmente las conclsuiones mencionadas en la carpeta de campo
+1. Hacer en GQM formalmente las conclsuiones mencionadas en la carpeta de campo
+2. Faltan hacer graficos para justificar, o no se si los que estan alcanzan 
+3. Revisar conclusiones de las preguntas, falta analisis (hacer mas funciones que de verdad aporten informacion, o hacer un planteo que pueda responder mas a fondo las preguntas y proponer la funcion)
+4. [TODO EL PUNTO DOS]
+5. [TODO EL PUNTO TRES]
+6. [INFORME]
+7. Hacer el README
