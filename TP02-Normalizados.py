@@ -99,8 +99,6 @@ def analisis_imagenes():
     print("Píxeles con mayor variación entre clases:")
     print(variacion.sort_values(ascending=False).head(10))
 
-    import matplotlib.pyplot as plt
-
     pixeles_interes = ["pixel194", "pixel222", "pixel47"]
 
     promedios[pixeles_interes].plot(
@@ -115,9 +113,6 @@ def analisis_imagenes():
     plt.tight_layout()
     plt.show()
 
-def crear_imagenes():
-    import matplotlib.pyplot as plt
-
 def mostrarImagenes(df, label, cantidad=6):
     ejemplos = df[df["label"] == label].head(cantidad)
 
@@ -131,13 +126,64 @@ def mostrarImagenes(df, label, cantidad=6):
     fig.suptitle(f"Ejemplos de la clase {label}")
     plt.show()
 
-analisisInicial(clases)
-analisisInicial(evaluacion)
-analisisInicial(imagenes)
-analisis_imagenes() 
-mostrarImagenes(imagenes, 2)
-mostrarImagenes(imagenes, 9)
-mostrarImagenes(imagenes, 6)
+def distanciaEuclidea(dibujo1, dibujo2):
+    diferencia = dibujo1 - dibujo2
+    return np.sqrt(np.sum(diferencia ** 2))
+
+def compararClases(df, clase1, clase2, cantidad=100):
+    pixeles = df.drop(columns=["label"])
+
+    dibujo1 = df[df["label"] == clase1][pixeles.columns].sample(
+        n=cantidad, random_state=42
+    ).to_numpy()
+
+    dibujo2 = df[df["label"] == clase2][pixeles.columns].sample(
+        n=cantidad, random_state=42
+    ).to_numpy()
+
+    distancias = []
+
+    for imagen1 in dibujo1:
+        for imagen2 in dibujo2:
+            distancias.append(distanciaEuclidea(imagen1, imagen2))
+
+    return np.mean(distancias)
+
+def analizarClase(df, clase, cantidad=100):
+    pixeles = df.drop(columns=["label"])
+
+    dibujos = df[df["label"] == clase][pixeles.columns].sample(
+        n=cantidad,
+        random_state=42
+    ).to_numpy()
+
+    distancias = []
+
+    for i in range(len(dibujos)):
+        for j in range(i + 1, len(dibujos)):
+            distancia = distanciaEuclidea(
+                dibujos[i], dibujos[j]
+            )
+            distancias.append(distancia)
+
+    print(f"Clase {clase}")
+    print("Distancia media:", np.mean(distancias))
+    print("Distancia mínima:", np.min(distancias))
+    print("Distancia máxima:", np.max(distancias))
+    print("Desvío estándar:", np.std(distancias))
+
+#analisisInicial(clases)
+#analisisInicial(evaluacion)
+#analisisInicial(imagenes)
+#analisis_imagenes() 
+#mostrarImagenes(imagenes, 2)
+#mostrarImagenes(imagenes, 9)
+#mostrarImagenes(imagenes, 6)
+#print("Cuadrados y casas:", compararClases(imagenes, 2, 9))
+#print("Cuadrados y estrellas:", compararClases(imagenes, 2, 6))
+#print("Casas y estrellas:", compararClases(imagenes, 9, 6))
+mostrarImagenes(imagenes, 3)
+analizarClase(imagenes, 3)
 #%% Codigo no dentro de funciones
 
 
