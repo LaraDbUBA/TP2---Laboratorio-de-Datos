@@ -73,3 +73,7 @@ Evidencia de nuestros análisis
 - Los pixeles toman valores entre 0 y 255.
 - Ningún píxel es constante en todas las imágenes.
 - Las distancias entre dibujos permiten cuantificar diferencias que no siempre son evidentes al observar una columna individual.
+
+20/10
+Agregue mas graficos para justificar las preguntas 1-A y 1-C.
+Están las conclusiones en el código

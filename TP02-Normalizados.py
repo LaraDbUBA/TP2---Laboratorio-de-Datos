@@ -17,7 +17,7 @@ Participantes: Ayala Ignacio, Della Bonzana Lara, Posse Lucila, Vetroni Milena
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-#from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split
 #from sklearn.preprocessing import StandardScaler
 #from sklearn.pipeline import make_pipeline
 #from sklearn.neighbors import KNeighborsClassifier
@@ -39,7 +39,7 @@ todas las operaciones que involucren azar (por ejemplo, en el parámetro random_
 las funciones de scikit-learn). Al volver a correr el código completo se deben obtener
 exactamente los mismos resultados que figuran en el informe.
 """
-semilla = 42 #Ni idea,pero creo que generalmente se usa esta?
+semilla = 42 # esta bien
 #%% Carga de datos
 #Chequear como hacer para que suba igual tanto para los profesores como para nosotros
 clases = pd.read_csv("clases.csv")
@@ -47,7 +47,6 @@ evaluacion = pd.read_csv("evaluacion.csv")
 imagenes = pd.read_csv("imagenes.csv")
 
 #%% Funciones propias
-
 
 def analisisInicial(df):
     print("========== ANÁLISIS INICIAL DEL DATAFRAME ==========\n")
@@ -124,7 +123,11 @@ def analisis_imagenes():
     plt.show()
 
 def mostrarImagenes(df, label, cantidad=6):
-    ejemplos = df[df["label"] == label].head(cantidad)
+    # que sea con random_state, representa mas que solo las primeras filas
+    ejemplos = df[df["label"] == label].sample(
+        n=cantidad,
+        random_state=semilla
+    ).to_numpy()
 
     fig, axes = plt.subplots(1, len(ejemplos), figsize=(12, 3))
 
@@ -157,7 +160,7 @@ def compararClases(df, clase1, clase2, cantidad=100):
         for imagen2 in dibujo2:
             distancias.append(distanciaEuclidea(imagen1, imagen2))
 
-    return np.mean(distancias)
+    return distancias
 
 def analizarClase(df, clase, cantidad=100):
     pixeles = df.drop(columns=["label"])
@@ -181,7 +184,8 @@ def analizarClase(df, clase, cantidad=100):
     print("Distancia mínima:", np.min(distancias))
     print("Distancia máxima:", np.max(distancias))
     print("Desvío estándar:", np.std(distancias))
-
+    
+    return distancias
 
 #%% Codigo no dentro de funciones
 analisisInicial(clases)
@@ -197,6 +201,97 @@ print("Casas y estrellas:", compararClases(imagenes, 9, 6))
 mostrarImagenes(imagenes, 3)
 analizarClase(imagenes, 3)
 
+#%% PREGUNTAS DEL 1(más graficos para entender)
+# 1-A ¿Qué atributos(pixeles) sirven y cuales no?
+pix = imagenes.drop(columns="label")
+promedios = imagenes.groupby("label")[pix.columns].mean()
+
+# Gráfico 1 - variacion entre clases(mapa de calor, hay que ver si se puede usar)
+var_entre = promedios.var(axis=0).to_numpy().reshape(28, 28)
+plt.imshow(var_entre, cmap="hot")
+plt.colorbar(label="Varianza entre promedios de clase")
+plt.title("Píxeles que más distinguen entre clases")
+plt.show()
+
+# Gráfico 2: mapa de calor del desvío total, para ver que pixel es relevante
+std_total = pix.std().to_numpy().reshape(28, 28)
+plt.imshow(std_total, cmap="viridis")
+plt.colorbar(label="Desvío estándar")
+plt.title("Desvío estándar por píxel")
+plt.show()
+
+# Conclusion de ambos graficos
+# El desvío estándar por píxel (Grafico 2) muestra que los píxeles del borde externo de la imagen casi no varían entre dibujos, por lo que aportan muy poca información y pueden descartarse. 
+# En cambio, los píxeles cercanos al borde interno y la zona central presentan alta variabilidad, y coinciden con las zonas de mayor variación entre clases (Grafico 1). Por lo tanto, se pueden descartar los atributos del marco externo, pero no la mayoría de los píxeles restantes.
+
+# vemos cuantos son constantes y cuantos se desvian, para ver cuantos se pueden descartar
+print("Constantes:", (pix.nunique() <= 1).sum()) # =0, ningun pixel vale lo mismo en todas las imagenes
+print("Desvío < 10:", (pix.std() < 10).sum()) # = 8 se mantienen constantes, de 784 pixeles representa el 1%
+
+# Conclusión final:(1.A)
+# Casi todos los atributos aportan información, solo una porción muy chica(8 pixeles, en las esquinas) es practicamente constante y descartable sin pérdida.
+# Descartar muchos más implica perder información.
+
+# Gráfico 3: boxplot de un píxel relevante vs uno irrelevante, por clase
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+imagenes.boxplot(column="pixel194", by="label", ax=axes[0])
+imagenes.boxplot(column="pixel0", by="label", ax=axes[1])   # esquina: se ve que es constante
+plt.show()
+
+
+# Grafico 4 para responder 1.b
+d_2_9 = compararClases(imagenes, 2, 9)
+d_2_6 = compararClases(imagenes, 2, 6)
+d_9_6 = compararClases(imagenes, 9, 6)
+d_2_2 = analizarClase(imagenes, 2)
+d_6_6 = analizarClase(imagenes, 6)
+d_9_9 = analizarClase(imagenes, 9)
+
+# comparamos entre clases y dentro de cada clase
+# Creo que entendimos mal el enunciado, quiere que comparemos que clase es mas facil de diferenciar, es decir comparar dentro de cada clase, no entre dibujos diferentes
+print("Cuadrados y casas:", np.mean(d_2_9))
+print("Cuadrados y estrellas:", np.mean(d_2_6))
+print("Casas y estrellas:", np.mean(d_9_6))
+
+plt.figure(figsize=(8,5))
+plt.boxplot([d_2_9, d_2_6, d_9_6, d_2_2, d_6_6, d_9_9], labels = ["2 vs 9", "2 vs 6", "9 vs 6", "2 vs 2", "6 vs 6", "9 vs 9"])
+plt.ylabel("Distancia euclídea")
+plt.title("Distancia dentro de cada clase y entre clases")
+plt.show()
+
+# Vemos que la clase 2(los cuadrados) son la clase más compacta ya que tienen una distancia media de 2900 y es la más baja(vemos que tienen la caja más abajo que los otros)
+# Las estrellas y las casas son clases bastantes heterogeneas, su distancia interna es casi igual a la distancia que tienen con otras clases. Es decir, una casa se parece a otra casa casi tanto como a un cuadrado o a una estrella.
+# Cuadrado vs casa es mas cercano que cuadrado vs estrella y la caja de 2 vs 9 está mas abajo. Los dibujos de cuadrado y casa son más similares que los dibujos de cuadrado vs estrella que se pueden diferenciar más. Pero la diferencia es moderada y las cajas están cerca.
+# Conclusión final 1.b
+# Las distancias entre dibujos de una misma clase son en general menores que entre clases distintas, sobre todo en la clase 2 (cuadrado), que es la más homogénea (mediana = 2900). Las clases 6 y 9 son más heterogéneas: su distancia interna (= 3200) es similar a su distancia con otras clases. Cuadrado y casa (mediana = 3320) se parecen más entre sí que cuadrado y estrella (= 3520), por lo que esta última pareja es más fácil de diferenciar. Aun así, el solapamiento entre cajas indica que la distancia euclídea píxel a píxel no alcanza para separar las clases de forma clara.
+
+# Grafico 5 para responder 1.c
+# ¿Son todas las imagenes muy similares entre si?(las de clase3:pez)
+c3 = imagenes[imagenes['label'] == 3].drop(columns='label')
+fig,axes = plt.subplots(1,2, figsize=(9,4))
+axes[0].imshow(c3.mean().to_numpy().reshape(28,28),cmap='gray')
+axes[0].set_title("Pez promedio")
+axes[1].imshow(c3.std().to_numpy().reshape(28,28),cmap='hot')
+axes[1].set_title("Desvio entre peces")
+for ax in axes: ax.axis("off")
+plt.show()
+# Vemos que la imagen de la izquierda es borrosa y no reproduce claramente la forma de un pez. Además en el mapa de desvío entre peces notamos que la variabilidad es muy alta en la parte superior y en los laterales, mientras que en la parte inferior(roja) casi todos los dibujos están vacíos, por eso varía poco.
+
+# Grafico 6
+d_3_3 = analizarClase(imagenes, 3)
+d_3_2 = compararClases(imagenes,3, 2)
+d_2_2 = analizarClase(imagenes, 2)
+plt.figure(figsize=(8,5))
+plt.boxplot([d_3_3, d_3_2, d_2_2], labels = ["3 vs 3", "3 vs 2", "2 vs 2"])
+plt.ylabel("Distancia euclídea")
+plt.title("Distancia dentro de la clase pez y cuadrado y entre clases")
+plt.show()
+
+# Las distancias entre dos peces (mediana=2900) son solo levemente menores que las distancias entre un pez y un cuadrado (=3120), y similares a las distancias entre dos cuadrados. 
+# Además, las cajas se solapan casi por completo. Esto indica que las imágenes de la clase 3 no son muy similares entre sí: hay mucha variación en posición, tamaño u orientación, coherente con el pez promedio borroso y el alto desvío por píxel observados en el Gráfico 5 de arriba.
+
+
+ 
 #%%
 
 """ 
@@ -206,7 +301,25 @@ este subconjunto de datos, analizar cuántas muestras se tienen y determinar
 si está balanceado con respecto a las dos clases a predecir.
 
 """
-df_binario = imagenes[(imagenes["label"] == 2) | (imagenes["label"] == 9)]
+df_binario = imagenes[(imagenes["label"] == 2) | (imagenes["label"] == 9)].copy()
+# analizamos cuantas muestras se tienen
+print("Cantidad de muestras:", len(df_binario))
+print(df_binario["label"].value_counts())
+# cuenta cuantas veces aparece cada clase pero en vez de cantidades devuelve proporciones y lo pasa a porcentaje
+# si devuelve 50 y 50 está balanceado, si devuelve otro valor no.
+print(df_binario["label"].value_counts(normalize=True) * 100)
+
+# 2    51.160862(3085 imagenes)
+# 9    48.839138(2945 imagenes)
+# Se encuentra balanceado, en consecuencia, la accuracy es una metrica adecuada para comparar modelos.
+
+
+# para verlo hicimoss este grafico de barras
+df_binario["label"].value_counts().plot(kind="bar")
+plt.xlabel("Clase")
+plt.ylabel("Cantidad de imágenes")
+plt.title("Balance de clases; 2 = cuadrado, 9= casa")
+plt.show()
 
 
 """ 
@@ -215,7 +328,20 @@ utilizar para comparar los modelos de este ejercicio. Para ello, tener en
 cuenta lo analizado en el inciso anterior (por ejemplo, si el conjunto está
 balanceado) y qué tipos de errores puede cometer el modelo. Explicar por
 qué decidieron utilizar esas métricas y no otras.
+"""
+
+ # puse algo en el informe
+"""
 c. Separar los datos en conjuntos de train y test.
+"""
+X = df_binario.drop(columns='label') # los atributos(784 pixeles)
+y = df_binario["label"] # lo que queremos predecir: 2 o 9
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,y, test_size=0.3, random_state=semilla, stratify=y)
+# separa un 30% de casos para prueba y 70% de casos para entrenamiento
+# stratify es para que se mantenga la proporcion de clases(51% y 49%) en test y train
+"""
 d. Ajustar un modelo de KNN sobre los datos de entrenamiento utilizando una
 cantidad reducida de atributos (por ejemplo, 3). Probar con distintos
 conjuntos de atributos seleccionados a partir del análisis exploratorio -por
@@ -228,6 +354,12 @@ k (vecinos). Para el análisis de los resultados, tener en cuenta las métricas
 de evaluación utilizadas y la cantidad de atributos utilizados.
 
 """
+
+# elegimos los atributos que más se distinguen entre 2 y 9
+prom = df_binario.groupby("label")[X.columns].mean()
+dif = (prom.loc[2] - prom.loc[9]).abs().sort_values(ascending=False)
+
+print(dif.head[10]) # los pixeles que mas separan cuadrado de casa
 # %%
 """
 . (Clasificación multiclase) Dada una imagen se desea responder la siguiente
