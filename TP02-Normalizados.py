@@ -15,17 +15,22 @@ Participantes: Ayala Ignacio, Della Bonzana Lara, Posse Lucila, Vetroni Milena
 
 #%% Imports
 import pandas as pd
+import itertools
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 #from sklearn.preprocessing import StandardScaler
 #from sklearn.pipeline import make_pipeline
-#from sklearn.neighbors import KNeighborsClassifier
-#from sklearn.metrics import (
-#    accuracy_score,
-#    classification_report,
-#    confusion_matrix
-#)
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    precision_score,
+    recall_score, 
+    f1_score
+)
+
 
 
 #%%  la definición de la semilla que se usará en todo el código (ver"Importante (reproducibilidad)"
@@ -127,7 +132,7 @@ def mostrarImagenes(df, label, cantidad=6):
     ejemplos = df[df["label"] == label].sample(
         n=cantidad,
         random_state=semilla
-    ).to_numpy()
+    )
 
     fig, axes = plt.subplots(1, len(ejemplos), figsize=(12, 3))
 
@@ -349,17 +354,108 @@ ejemplo, varios subconjuntos distintos de 3 atributos si se eligió ese númeroy
 cantidades de atributos. Para comparar los resultados de cada modelo usar
 el conjunto de test generado en el punto anterior y las métricas elegidas en el
 inciso b.
-e. Comparar modelos de KNN utilizando distintos atributos y distintos valores de
-k (vecinos). Para el análisis de los resultados, tener en cuenta las métricas
-de evaluación utilizadas y la cantidad de atributos utilizados.
 
 """
 
 # elegimos los atributos que más se distinguen entre 2 y 9
-prom = df_binario.groupby("label")[X.columns].mean()
+df_tr = X_train.copy()
+df_tr["label"] = y_train
+prom = df_binario.groupby("label")[X_train.columns].mean()
 dif = (prom.loc[2] - prom.loc[9]).abs().sort_values(ascending=False)
 
-print(dif.head[10]) # los pixeles que mas separan cuadrado de casa
+print(dif.head(10))# los pixeles que mas separan cuadrado de casa
+
+def evaluarKNN(X_train, X_test, y_train, y_test, atributos, k):
+    atributos = list(atributos)
+    knn = KNeighborsClassifier(n_neighbors=k)
+    knn.fit(X_train[atributos], y_train)
+    y_pred = knn.predict(X_test[atributos])
+    accuracy = accuracy_score(y_test,y_pred)
+    return {
+        "Atributos" : tuple(atributos), 
+        "n_atributos" : len(atributos),
+        "k" : k, 
+        "Accuracy": accuracy, 
+        "Precision" : precision_score(y_test, y_pred, pos_label=9), 
+        "Recall" : recall_score(y_test, y_pred, pos_label=9), 
+        "f1" : f1_score(y_test, y_pred, pos_label=9)
+        }
+
+# distintos conjuntos con 3 atributos
+ranking_pixeles = list(dif.index)
+k_fijo = 5
+
+resultados = []
+for sub in itertools.combinations(ranking_pixeles[:8], 3):
+    resultados.append(evaluarKNN(X_train,X_test,y_train,y_test,sub,k_fijo))
+
+# vemos 3 aleatorios
+rng = np.random.default_rng(42)
+for _ in range(5):
+    sub = rng.choice(X_train.columns,3, replace=False)
+    r = evaluarKNN(X_train, X_test, y_train, y_test, sub, k_fijo)
+    r["tipo"] = "aleatorio" # no se si esta bien esto, despues queda nan en los otros
+    resultados.append(r)
+    
+# distinta cantidad de atributos
+for n in [1,2,3,5,10,50,100]:
+    resultados.append(evaluarKNN(X_train,X_test,y_train,y_test,ranking_pixeles[:n],k_fijo))
+
+res = pd.DataFrame(resultados)
+res["tipo"] = res["tipo"].fillna("ranking")
+res2 = res.sort_values("f1", ascending=False).head(15)
+
+
+def matrizConfusion(X_train, X_test, y_train, y_test, atributos, k):
+    atributos = list(atributos)
+    knn = KNeighborsClassifier(n_neighbors=k).fit(X_train[atributos], y_train)
+    y_pred = knn.predict(X_test[atributos])
+    print(f"{len(atributos)} atributos, k = {k}")
+    print(atributos if len(atributos) <= 5 else "...")
+    print(confusion_matrix(y_test, y_pred, labels=[2, 9]), "\n")
+
+# matriz de confusion con vecinos, pixeles redundantes
+matrizConfusion(X_train, X_test, y_train, y_test, ranking_pixeles[:3], k_fijo)
+# matriz con pixeles que aportan mas informacion
+matrizConfusion(X_train, X_test, y_train, y_test, ["pixel50", "pixel141", "pixel169"], k_fijo)
+matrizConfusion(X_train, X_test, y_train, y_test, ranking_pixeles[:100], k_fijo)
+    
+
+"""e. Comparar modelos de KNN utilizando distintos atributos y distintos valores de
+k (vecinos). Para el análisis de los resultados, tener en cuenta las métricas
+de evaluación utilizadas y la cantidad de atributos utilizados.
+"""
+
+ks = [1,3,5,7,11,15,25,30]
+ns = [1,2,3,5,10,20,50,100,200,784]
+
+resultados_e = []
+for n in ns:
+    for k in ks:
+        r = evaluarKNN(X_train, X_test, y_train, y_test, ranking_pixeles[:n], k)
+        resultados_e.append(r)
+        
+res_e = pd.DataFrame(resultados_e)
+# tabla de n atributos
+print(res_e.pivot(index="n_atributos", columns = "k", values="f1").round(3))
+
+# Grafico
+fig,axs = plt.subplots(1,2,figsize=(12,4))
+for n in ns:
+    sub = res_e[res_e.n_atributos == n]
+    axs[0].plot(sub.k,sub.f1, marker = "o", label= f"{n} atributos")
+axs[0].set(xlabel="k", ylabel = "f1",title = "f1 vs k")
+axs[0].legend()
+
+for k in [1,5,25]:
+    sub = res_e[res_e.k == k]
+    axs[1].plot(sub.n_atributos,sub.f1, marker = "o", label= f" k = {k}")
+axs[1].set(xlabel="numero de atributos", ylabel = "f1",title = "f1 vs numero de atributos")
+axs[1].legend()
+plt.tight_layout()
+plt.show()
+
+
 # %%
 """
 . (Clasificación multiclase) Dada una imagen se desea responder la siguiente

@@ -75,5 +75,36 @@ Evidencia de nuestros análisis
 - Las distancias entre dibujos permiten cuantificar diferencias que no siempre son evidentes al observar una columna individual.
 
 20/10
-Agregue mas graficos para justificar las preguntas 1-A y 1-C.
+Agregue mas graficos para justificar las preguntas 1-A, 1-B y 1-C.
+Creo que entendimos mal la consigna de 1.B y se refiere a comparar dentro de cada clase, cual es la mas facil de diferenciar, no mezclar los dibujos.
 Están las conclusiones en el código
+Empece a ver el ejercicio 2, el 2.b está en el informe.
+elegimos accuracy y F-score porque estan balanceados los datos. 
+Me faltó hacer 2d que es lo de KNN que lo puedo terminar el finde.
+
+22/10 
+Conclusión 2d:
+Con k=5 y tres atributos, los modelos alcanzaron accuracy entre 0.90 y 0.91 y F1 cercano a 0.90. 
+Los mejores subconjuntos combinan un píxel del bloque 45-50 con el píxel 141,
+lo que sugiere que los píxeles vecinos son redundantes y que sumar uno de otra zona aporta más información.
+Las diferencias entre subconjuntos son menores a un punto, por lo que no las consideramos concluyentes. 
+Al aumentar la cantidad de atributos el desempeño mejora de forma sostenida (F1 de 0.915 con 10, 0.958 con 50 y 0.968 con 100). 
+Con pocos atributos el recall supera a la precision, es decir, 
+el modelo tiende a clasificar cuadrados como casas.
+
+Justificacion con la matriz de confusion
+Con k=5 y tres atributos, el trío formado por los píxeles vecinos con mayor diferencia entre clases (48, 47, 49) alcanzó una accuracy de 0.84, mientras que un trío con píxeles de zonas distintas (50, 141, 169) llegó a 0.90, reduciendo los cuadrados clasificados como casa de 222 a 120. 
+Esto sugiere que los píxeles contiguos son redundantes y que conviene elegir atributos que aporten información complementaria. 
+En ambos casos el recall de la clase casa supera a la precision, es decir, el modelo tiende a predecir “casa”. 
+Con 100 atributos la accuracy sube a 0.97 y los errores se equilibran (29 y 28).
+
+Conclusion 2e
+Con n=200 el F1 es ≈0.97 para todos los k (entre 0.971 y 0.974). Con 784 baja a 0.953-0.966. Usar todos los píxeles rinde peor que usar los 200 mejores.
+
+Al variar k y la cantidad de atributos, el factor determinante fue la cantidad de atributos: 
+el F1 pasó de ≈0.84 con 1 a 3 atributos a ≈0.92 con 10, 
+≈0.96 con 50 y ≈0.97 con 100 y 200. 
+Con los 784 píxeles el F1 baja levemente (≈0.95 a 0.966), 
+lo que sugiere que los píxeles menos discriminativos agregan ruido a la distancia euclídea (maldición de la dimensionalidad). 
+Entre 1 y 5 atributos casi no hubo mejora porque los primeros píxeles del ranking son contiguos y redundantes. 
+El efecto de k fue menor: con pocos atributos k=1 rindió peor y el F1 se estabilizó desde k≈5, mientras que con muchos atributos los k chicos rindieron igual o algo mejor que los grandes.
