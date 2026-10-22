@@ -15,7 +15,6 @@ Participantes: Ayala Ignacio, Della Bonzana Lara, Posse Lucila, Vetroni Milena
 
 #%% Imports
 import pandas as pd
-import itertools
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
@@ -519,3 +518,77 @@ entrenamiento o la selección de hiperparámetros
 """
 
 #%%
+
+X_dev, X_held, y_dev, y_held = train_test_split(
+    X, y,
+    test_size=0.20,
+    random_state=42,
+    stratify=y
+)
+
+print("Imágenes de desarrollo:", X_dev.shape[0])
+print("Imágenes de control:", X_held.shape[0])
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
+
+validacion = StratifiedKFold(
+    n_splits=5,
+    shuffle=True,
+    random_state=42
+)
+
+arbol = DecisionTreeClassifier(random_state=42)
+
+parametros = {
+    "max_depth": list(range(1, 11)),
+    "criterion": ["gini", "entropy"],
+    "min_samples_leaf": [1, 5, 10]
+}
+
+busqueda = GridSearchCV(
+    arbol,
+    parametros,
+    cv=validacion,
+    scoring="f1_macro",
+    n_jobs=-1
+)
+
+busqueda.fit(X_dev, y_dev)
+
+print("Mejores parámetros:", busqueda.best_params_)
+print("Mejor F1 macro promedio:", busqueda.best_score_)
+# Mostramos las 10 configuraciones con mejor resultado
+resultados_c = pd.DataFrame(busqueda.cv_results_)
+resultados_c = resultados_c.sort_values(
+    "rank_test_score"
+)
+
+print(resultados_c[
+    ["params", "mean_test_score", "std_test_score"]
+].head(10))
+#%% Evaluamos el modelo elegido
+
+mejor_arbol = busqueda.best_estimator_
+
+y_pred = mejor_arbol.predict(X_held)
+
+print("Accuracy:", accuracy_score(y_held, y_pred))
+print("F1 macro:", f1_score(y_held, y_pred, average="macro"))
+
+print(classification_report(y_held, y_pred))
+
+matriz = confusion_matrix(y_held, y_pred)
+print(matriz)
+
+plt.figure(figsize=(9, 7))
+plt.imshow(matriz)
+plt.colorbar()
+plt.xlabel("Clase predicha")
+plt.ylabel("Clase real")
+plt.title("Matriz de confusión - held-out")
+plt.xticks(range(10))
+plt.yticks(range(10))
+plt.tight_layout()
+plt.show()
+
+#%%Predecimos las clases de evaluación
