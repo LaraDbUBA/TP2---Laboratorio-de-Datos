@@ -1,0 +1,226 @@
+
+\documentclass[11pt,a4paper]{article}
+
+% --------------------------------------------------
+% PAQUETES
+% --------------------------------------------------
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+
+\usepackage{geometry}
+\geometry{margin=2.3cm}
+
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{caption}
+
+% Carátula gráfica
+\usepackage[graf,intVert,sinLU]{caratula}
+
+% --------------------------------------------------
+% DATOS DE LA CARÁTULA
+% --------------------------------------------------
+
+\materia{Laboratorio de Datos}
+\titulo{Trabajo Práctico 2}
+\subtitulo{Análisis y experimentación con modelos}
+\fecha{Octubre de 2026}
+
+% Reemplazar por los datos reales del grupo.
+\grupo{Nombre del grupo}
+
+\integrante{Nombre y apellido}{LU}{correo@ejemplo.com}
+% Agregar una línea \integrante por cada integrante.
+
+% --------------------------------------------------
+% INICIO DEL DOCUMENTO
+% --------------------------------------------------
+
+\begin{document}
+
+\maketitle
+
+% ==================================================
+\section{Introducción y análisis exploratorio}
+% ==================================================
+
+El objetivo de este trabajo práctico es [describir brevemente
+el problema que se busca resolver]. Para ello, se trabajó con
+un conjunto de datos compuesto por [describir brevemente los
+datos disponibles] y se realizaron distintos experimentos
+para evaluar el desempeño de los modelos desarrollados.
+
+\subsection{Análisis exploratorio}
+
+En primer lugar, se realizó un análisis exploratorio con el
+objetivo de comprender la estructura del conjunto de datos,
+identificar sus principales características y detectar posibles
+problemas de calidad.
+
+El conjunto de entrenamiento contiene [cantidad] observaciones
+y [cantidad] atributos, mientras que el conjunto de evaluación
+contiene [cantidad] observaciones. La variable objetivo es
+[variable objetivo], que representa [explicar brevemente].
+
+Durante el análisis se estudiaron:
+\begin{itemize}
+    \item La cantidad de observaciones y atributos.
+    \item Los tipos de datos y los valores posibles.
+    \item La presencia de valores faltantes o constantes.
+    \item La distribución de las clases.
+    \item Las características relevantes de los datos para
+    el problema planteado.
+\end{itemize}
+
+A partir de este análisis, se observó que [describir los
+hallazgos más importantes]. Estos resultados permitieron
+orientar la selección de los modelos y los experimentos
+posteriores.
+
+% Si resulta útil, insertar aquí un gráfico exploratorio.
+% Ejemplo:
+%
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.7\textwidth]{imagenes/grafico_exploratorio.png}
+%     \caption{Descripción del gráfico exploratorio.}
+%     \label{fig:exploratorio}
+% \end{figure}
+
+% ==================================================
+\section{Experimentos realizados}
+% ==================================================
+
+En esta sección se describen los experimentos realizados,
+las decisiones tomadas durante el desarrollo y los resultados
+obtenidos. Para cada experimento se especifican el objetivo,
+la metodología y las observaciones principales.
+
+\subsection{Preparación de los datos}
+
+Antes de entrenar los modelos, se realizó [describir el
+preprocesamiento aplicado]. Se utilizaron los conjuntos de
+datos de entrenamiento y evaluación según lo establecido
+en la consigna.
+
+Las decisiones de preparación de los datos se tomaron
+considerando [justificar brevemente las decisiones relevantes].
+
+\subsection{Primer experimento: [nombre del experimento]}
+
+El objetivo de este experimento fue [objetivo].
+
+Para realizarlo, se utilizó [modelo o método], con
+[describir brevemente la configuración y los parámetros
+más importantes].
+
+Los resultados obtenidos fueron [incluir resultados
+relevantes y métricas]. A partir de ellos, se observó que
+[interpretar el resultado, sin limitarse a repetir los valores].
+
+% Insertar el gráfico si aporta información.
+%
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.75\textwidth]{imagenes/experimento1.png}
+%     \caption{Resultados del primer experimento.}
+%     \label{fig:experimento1}
+% \end{figure}
+
+\subsection{Segundo experimento: [nombre del experimento]}
+
+En este experimento se buscó [objetivo], modificando
+[parámetros, atributos o modelo respecto del experimento
+anterior].
+
+Se obtuvo [resultados principales]. La comparación con
+el experimento anterior permite observar que [interpretación
+de las diferencias].
+
+% Agregar subsecciones para los experimentos que realmente
+% se hayan realizado, sin repetir información innecesaria.
+
+\subsection{Comparación de resultados}
+
+Para comparar los modelos y configuraciones evaluados,
+se resumen los resultados principales en la Tabla
+\ref{tab:resultados}.
+
+\begin{table}[H]
+    \centering
+    \caption{Comparación de los experimentos realizados.}
+    \label{tab:resultados}
+    \begin{tabular}{lcc}
+        \toprule
+        Experimento & Métrica utilizada & Resultado \\
+        \midrule
+        Experimento 1 & [métrica] & [valor] \\
+        Experimento 2 & [métrica] & [valor] \\
+        Experimento 3 & [métrica] & [valor] \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Los resultados muestran que [resumir qué configuración
+obtuvo el mejor desempeño y qué diferencias relevantes
+se encontraron].
+
+% ==================================================
+\section{Conclusiones}
+% ==================================================
+
+A partir de los experimentos realizados, se concluye que
+[resumir los principales hallazgos del trabajo].
+
+En particular, el modelo [nombre del modelo] obtuvo
+[resultado relevante], mientras que [otro modelo o
+configuración] presentó [resultado]. Estas diferencias
+pueden explicarse por [justificación basada en los
+experimentos y las características de los datos].
+
+Respecto del inciso 3.e, la accuracy estimada fue de
+[valor o porcentaje]. Esta estimación se obtuvo mediante
+[método utilizado para estimarla], utilizando
+[describir los datos o particiones empleados].
+
+La estimación resulta razonable porque [justificar a partir
+del procedimiento de evaluación, los resultados obtenidos
+y las limitaciones que correspondan]. Sin embargo, debe
+tenerse en cuenta que [mencionar posibles limitaciones,
+incertidumbre o diferencias entre los datos utilizados
+para evaluar y los datos finales].
+
+En síntesis, los resultados permiten afirmar que
+[conclusión final directamente respaldada por los
+experimentos realizados].
+
+% ==================================================
+\section{Bibliografía}
+% ==================================================
+
+\begin{thebibliography}{9}
+
+\bibitem{paper}
+[Autores del paper].
+\textit{[Título completo del paper]}.
+[Revista, congreso o publicación, año].
+[DOI o URL, si corresponde].
+
+% Agregar las demás fuentes consultadas.
+% Ejemplo de documentación:
+%
+% \bibitem{documentacion}
+% Scikit-learn.
+% \textit{Documentación oficial}.
+% \url{https://scikit-learn.org/stable/}
+
+\end{thebibliography}
+
+\end{document}
+
+
