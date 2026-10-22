@@ -31,6 +31,7 @@ from sklearn.metrics import (
     f1_score
 )
 
+import random
 
 
 #%%  la definición de la semilla que se usará en todo el código (ver"Importante (reproducibilidad)"
@@ -192,7 +193,32 @@ def analizarClase(df, clase, cantidad=100):
     
     return distancias
 
-#%% Codigo no dentro de funciones
+def evaluarKNN(X_train, X_test, y_train, y_test, atributos, k):
+    atributos = list(atributos)
+    knn = KNeighborsClassifier(n_neighbors=k)
+    knn.fit(X_train[atributos], y_train)
+    y_pred = knn.predict(X_test[atributos])
+    accuracy = accuracy_score(y_test,y_pred)
+    return {
+        "Atributos" : tuple(atributos), 
+        "n_atributos" : len(atributos),
+        "k" : k, 
+        "Accuracy": accuracy, 
+        "Precision" : precision_score(y_test, y_pred, pos_label=9), 
+        "Recall" : recall_score(y_test, y_pred, pos_label=9), 
+        "f1" : f1_score(y_test, y_pred, pos_label=9)
+        }
+
+
+def matrizConfusion(X_train, X_test, y_train, y_test, atributos, k):
+    atributos = list(atributos)
+    knn = KNeighborsClassifier(n_neighbors=k).fit(X_train[atributos], y_train)
+    y_pred = knn.predict(X_test[atributos])
+    print(f"{len(atributos)} atributos, k = {k}")
+    print(atributos if len(atributos) <= 5 else "...")
+    print(confusion_matrix(y_test, y_pred, labels=[2, 9]), "\n")
+
+#%% Analisis inicial
 analisisInicial(clases)
 analisisInicial(evaluacion)
 analisisInicial(imagenes)
@@ -226,6 +252,7 @@ plt.title("Desvío estándar por píxel")
 plt.show()
 
 # Conclusion de ambos graficos
+## No!!! esto estaba en las cocnlusiones de antes, no es suficiente informacion para poder eliminarlos, en todo caso habria que ver que pasa si los eliminamos
 # El desvío estándar por píxel (Grafico 2) muestra que los píxeles del borde externo de la imagen casi no varían entre dibujos, por lo que aportan muy poca información y pueden descartarse. 
 # En cambio, los píxeles cercanos al borde interno y la zona central presentan alta variabilidad, y coinciden con las zonas de mayor variación entre clases (Grafico 1). Por lo tanto, se pueden descartar los atributos del marco externo, pero no la mayoría de los píxeles restantes.
 
@@ -297,7 +324,7 @@ plt.show()
 
 
  
-#%%
+#%% Punto 2
 
 """ 
 a. A partir del dataframe original, construir un nuevo dataframe que contenga
@@ -360,67 +387,61 @@ inciso b.
 # elegimos los atributos que más se distinguen entre 2 y 9
 df_tr = X_train.copy()
 df_tr["label"] = y_train
-prom = df_binario.groupby("label")[X_train.columns].mean()
+
+prom = df_tr.groupby("label")[X_train.columns].mean()
 dif = (prom.loc[2] - prom.loc[9]).abs().sort_values(ascending=False)
 
 print(dif.head(10))# los pixeles que mas separan cuadrado de casa
-
-def evaluarKNN(X_train, X_test, y_train, y_test, atributos, k):
-    atributos = list(atributos)
-    knn = KNeighborsClassifier(n_neighbors=k)
-    knn.fit(X_train[atributos], y_train)
-    y_pred = knn.predict(X_test[atributos])
-    accuracy = accuracy_score(y_test,y_pred)
-    return {
-        "Atributos" : tuple(atributos), 
-        "n_atributos" : len(atributos),
-        "k" : k, 
-        "Accuracy": accuracy, 
-        "Precision" : precision_score(y_test, y_pred, pos_label=9), 
-        "Recall" : recall_score(y_test, y_pred, pos_label=9), 
-        "f1" : f1_score(y_test, y_pred, pos_label=9)
-        }
 
 # distintos conjuntos con 3 atributos
 ranking_pixeles = list(dif.index)
 k_fijo = 5
 
 resultados = []
-for sub in itertools.combinations(ranking_pixeles[:8], 3):
-    resultados.append(evaluarKNN(X_train,X_test,y_train,y_test,sub,k_fijo))
 
-# vemos 3 aleatorios
-rng = np.random.default_rng(42)
-for _ in range(5):
-    sub = rng.choice(X_train.columns,3, replace=False)
+# Probamos distintos conjuntos de 3 atributos entre los 8 mejor rankeados
+combinaciones = [
+    ranking_pixeles[:3],
+    ranking_pixeles[1:4],
+    ranking_pixeles[2:5],
+    ranking_pixeles[3:6],
+    ranking_pixeles[5:8]
+]
+
+for sub in combinaciones:
     r = evaluarKNN(X_train, X_test, y_train, y_test, sub, k_fijo)
-    r["tipo"] = "aleatorio" # no se si esta bien esto, despues queda nan en los otros
+    r["tipo"] = "ranking"
     resultados.append(r)
-    
+
+# Probamos 5 conjuntos aleatorios de 3 atributos
+random.seed(semilla)
+
+for i in range(5):
+    sub = random.sample(list(X_train.columns), 3)
+    r = evaluarKNN(X_train, X_test, y_train, y_test, sub, k_fijo)
+    r["tipo"] = "aleatorio"
+    resultados.append(r)   
 # distinta cantidad de atributos
 for n in [1,2,3,5,10,50,100]:
     resultados.append(evaluarKNN(X_train,X_test,y_train,y_test,ranking_pixeles[:n],k_fijo))
 
 res = pd.DataFrame(resultados)
 res["tipo"] = res["tipo"].fillna("ranking")
+
+# Ordenamos los modelos según su F1 y mostramos los 15 mejores
 res2 = res.sort_values("f1", ascending=False).head(15)
 
 
-def matrizConfusion(X_train, X_test, y_train, y_test, atributos, k):
-    atributos = list(atributos)
-    knn = KNeighborsClassifier(n_neighbors=k).fit(X_train[atributos], y_train)
-    y_pred = knn.predict(X_test[atributos])
-    print(f"{len(atributos)} atributos, k = {k}")
-    print(atributos if len(atributos) <= 5 else "...")
-    print(confusion_matrix(y_test, y_pred, labels=[2, 9]), "\n")
-
-# matriz de confusion con vecinos, pixeles redundantes
+# Matriz de confusión con los 3 píxeles mejor rankeados
 matrizConfusion(X_train, X_test, y_train, y_test, ranking_pixeles[:3], k_fijo)
-# matriz con pixeles que aportan mas informacion
-matrizConfusion(X_train, X_test, y_train, y_test, ["pixel50", "pixel141", "pixel169"], k_fijo)
-matrizConfusion(X_train, X_test, y_train, y_test, ranking_pixeles[:100], k_fijo)
-    
 
+# Matriz de confusión con otros 3 píxeles seleccionados
+matrizConfusion(X_train, X_test, y_train, y_test, ["pixel50", "pixel141", "pixel169"], k_fijo)
+
+# Matriz de confusión utilizando los 100 píxeles mejor rankeados
+matrizConfusion(X_train, X_test, y_train, y_test, ranking_pixeles[:100], k_fijo)
+
+#%%
 """e. Comparar modelos de KNN utilizando distintos atributos y distintos valores de
 k (vecinos). Para el análisis de los resultados, tener en cuenta las métricas
 de evaluación utilizadas y la cantidad de atributos utilizados.
@@ -496,3 +517,5 @@ con mayor accuracy pero mal estimada. Tengan especial cuidado de no usar,
 para estimar el desempeño, datos que el modelo ya haya visto durante el
 entrenamiento o la selección de hiperparámetros
 """
+
+#%%
