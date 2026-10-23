@@ -8,7 +8,7 @@ Comentario: se puede usar codigo extra, por ejemplo podemos hacer un archivo con
 importarlas y usarlas aca como si fueran modulos
 
 Grupo: Normalizados
-Participantes: Ayala Ignacio, Della Bonzana Lara, Posse Lucila, Vetroni Milena
+Participantes: Ayala Ignacio, Della Bonzana Lara, Posse Lucila, Ventroni Milena
 
 
 """
@@ -31,6 +31,7 @@ from sklearn.metrics import (
 )
 
 import random
+from pathlib import Path
 
 
 #%%  la definición de la semilla que se usará en todo el código (ver"Importante (reproducibilidad)"
@@ -46,6 +47,10 @@ exactamente los mismos resultados que figuran en el informe.
 """
 semilla = 42 # esta bien
 #%% Carga de datos
+
+#Creo carpeta para guardar los gráficos 
+Path("graficos").mkdir(exist_ok=True)
+
 #Chequear como hacer para que suba igual tanto para los profesores como para nosotros
 clases = pd.read_csv("clases.csv")
 evaluacion = pd.read_csv("evaluacion.csv")
@@ -189,7 +194,7 @@ def analizarClase(df, clase, cantidad=100):
     print("Distancia mínima:", np.min(distancias))
     print("Distancia máxima:", np.max(distancias))
     print("Desvío estándar:", np.std(distancias))
-    
+
     return distancias
 
 def evaluarKNN(X_train, X_test, y_train, y_test, atributos, k):
@@ -225,29 +230,34 @@ analisis_imagenes()
 mostrarImagenes(imagenes, 2)
 mostrarImagenes(imagenes, 9)
 mostrarImagenes(imagenes, 6)
-print("Cuadrados y casas:", compararClases(imagenes, 2, 9))
-print("Cuadrados y estrellas:", compararClases(imagenes, 2, 6))
-print("Casas y estrellas:", compararClases(imagenes, 9, 6))
+print("Distancia media cuadrados-casas:", np.mean(compararClases(imagenes, 2, 9)))
+print("Distancia media cuadrados-estrellas:", np.mean(compararClases(imagenes, 2, 6)))
+print("Distancia media casas-estrellas:", np.mean(compararClases(imagenes, 9, 6)))
 mostrarImagenes(imagenes, 3)
-analizarClase(imagenes, 3)
+_ =analizarClase(imagenes, 3)
 
 #%% PREGUNTAS DEL 1(más graficos para entender)
 # 1-A ¿Qué atributos(pixeles) sirven y cuales no?
+
 pix = imagenes.drop(columns="label")
 promedios = imagenes.groupby("label")[pix.columns].mean()
 
-# Gráfico 1 - variacion entre clases(mapa de calor, hay que ver si se puede usar)
+# Gráfico 1 - Variación entre clases
 var_entre = promedios.var(axis=0).to_numpy().reshape(28, 28)
-plt.imshow(var_entre, cmap="hot")
-plt.colorbar(label="Varianza entre promedios de clase")
-plt.title("Píxeles que más distinguen entre clases")
+fig, ax = plt.subplots(figsize=(7, 6))
+im = ax.imshow(var_entre, cmap="hot")
+fig.colorbar(im, ax=ax, label="Varianza entre promedios de clase")
+ax.set_title("Píxeles que más distinguen entre clases")
+fig.savefig("graficos/varianza_entre_clases.png", dpi=300, bbox_inches="tight")
 plt.show()
 
-# Gráfico 2: mapa de calor del desvío total, para ver que pixel es relevante
+# Gráfico 2: mapa de calor del desvío total
 std_total = pix.std().to_numpy().reshape(28, 28)
-plt.imshow(std_total, cmap="viridis")
-plt.colorbar(label="Desvío estándar")
-plt.title("Desvío estándar por píxel")
+fig, ax = plt.subplots(figsize=(7, 6))
+im = ax.imshow(std_total, cmap="viridis")
+fig.colorbar(im, ax=ax, label="Desvío estándar")
+ax.set_title("Desvío estándar por píxel")
+fig.savefig("graficos/desvio_total.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 # Conclusion de ambos graficos
@@ -259,18 +269,20 @@ plt.show()
 print("Constantes:", (pix.nunique() <= 1).sum()) # =0, ningun pixel vale lo mismo en todas las imagenes
 print("Desvío < 10:", (pix.std() < 10).sum()) # = 8 se mantienen constantes, de 784 pixeles representa el 1%
 
+# Gráfico 3: boxplot de un píxel relevante vs uno irrelevante, por clase
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+imagenes.boxplot(column="pixel194", by="label", ax=axes[0])
+imagenes.boxplot(column="pixel0", by="label", ax=axes[1])
+fig.savefig("graficos/comparacion_pixeles.png", dpi=300, bbox_inches="tight")
+plt.show()
+
 # Conclusión final:(1.A)
 # Casi todos los atributos aportan información, solo una porción muy chica(8 pixeles, en las esquinas) es practicamente constante y descartable sin pérdida.
 # Descartar muchos más implica perder información.
 
-# Gráfico 3: boxplot de un píxel relevante vs uno irrelevante, por clase
-fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-imagenes.boxplot(column="pixel194", by="label", ax=axes[0])
-imagenes.boxplot(column="pixel0", by="label", ax=axes[1])   # esquina: se ve que es constante
-plt.show()
 
+# Gráfico 4: distancias dentro y entre clases (responde 1.b)
 
-# Grafico 4 para responder 1.b
 d_2_9 = compararClases(imagenes, 2, 9)
 d_2_6 = compararClases(imagenes, 2, 6)
 d_9_6 = compararClases(imagenes, 9, 6)
@@ -278,16 +290,30 @@ d_2_2 = analizarClase(imagenes, 2)
 d_6_6 = analizarClase(imagenes, 6)
 d_9_9 = analizarClase(imagenes, 9)
 
-# comparamos entre clases y dentro de cada clase
-# Creo que entendimos mal el enunciado, quiere que comparemos que clase es mas facil de diferenciar, es decir comparar dentro de cada clase, no entre dibujos diferentes
+fig, ax = plt.subplots(figsize=(10, 5))
+ax.boxplot([d_2_9, d_2_6, d_9_6, d_2_2, d_6_6, d_9_9], tick_labels=["2 vs 9", "2 vs 6", "9 vs 6", "2 vs 2", "6 vs 6", "9 vs 9"])
+ax.set_ylabel("Distancia euclídea")
+ax.set_title("Distancias dentro de cada clase y entre clases")
+fig.tight_layout()
+fig.savefig("graficos/distancias_clases.png", dpi=300, bbox_inches="tight")
+plt.show()
+
+# Comparamos entre clases diferentes
 print("Cuadrados y casas:", np.mean(d_2_9))
 print("Cuadrados y estrellas:", np.mean(d_2_6))
 print("Casas y estrellas:", np.mean(d_9_6))
 
+# Medianas dentro de cada clase
+print("Mediana cuadrados:", np.median(d_2_2))
+print("Mediana estrellas:", np.median(d_6_6))
+print("Mediana casas:", np.median(d_9_9))
+
 plt.figure(figsize=(8,5))
-plt.boxplot([d_2_9, d_2_6, d_9_6, d_2_2, d_6_6, d_9_9], labels = ["2 vs 9", "2 vs 6", "9 vs 6", "2 vs 2", "6 vs 6", "9 vs 9"])
+plt.boxplot([d_2_9, d_2_6, d_9_6, d_2_2, d_6_6, d_9_9], tick_labels=["2 vs 9", "2 vs 6", "9 vs 6", "2 vs 2", "6 vs 6", "9 vs 9"])
 plt.ylabel("Distancia euclídea")
 plt.title("Distancia dentro de cada clase y entre clases")
+fig.tight_layout()
+fig.savefig("graficos/distancias_clases.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 # Vemos que la clase 2(los cuadrados) son la clase más compacta ya que tienen una distancia media de 2900 y es la más baja(vemos que tienen la caja más abajo que los otros)
@@ -305,6 +331,8 @@ axes[0].set_title("Pez promedio")
 axes[1].imshow(c3.std().to_numpy().reshape(28,28),cmap='hot')
 axes[1].set_title("Desvio entre peces")
 for ax in axes: ax.axis("off")
+fig.tight_layout()
+fig.savefig("graficos/peces_promedio_desvio.png", dpi=300, bbox_inches="tight")
 plt.show()
 # Vemos que la imagen de la izquierda es borrosa y no reproduce claramente la forma de un pez. Además en el mapa de desvío entre peces notamos que la variabilidad es muy alta en la parte superior y en los laterales, mientras que en la parte inferior(roja) casi todos los dibujos están vacíos, por eso varía poco.
 
@@ -312,16 +340,17 @@ plt.show()
 d_3_3 = analizarClase(imagenes, 3)
 d_3_2 = compararClases(imagenes,3, 2)
 d_2_2 = analizarClase(imagenes, 2)
-plt.figure(figsize=(8,5))
-plt.boxplot([d_3_3, d_3_2, d_2_2], labels = ["3 vs 3", "3 vs 2", "2 vs 2"])
-plt.ylabel("Distancia euclídea")
-plt.title("Distancia dentro de la clase pez y cuadrado y entre clases")
+
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.boxplot([d_3_3, d_3_2, d_2_2], tick_labels=["3 vs 3", "3 vs 2", "2 vs 2"])
+ax.set_ylabel("Distancia euclídea")
+ax.set_title("Distancias dentro y entre las clases pez y cuadrado")
+fig.tight_layout()
+fig.savefig("graficos/distancias_peces.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 # Las distancias entre dos peces (mediana=2900) son solo levemente menores que las distancias entre un pez y un cuadrado (=3120), y similares a las distancias entre dos cuadrados. 
 # Además, las cajas se solapan casi por completo. Esto indica que las imágenes de la clase 3 no son muy similares entre sí: hay mucha variación en posición, tamaño u orientación, coherente con el pez promedio borroso y el alto desvío por píxel observados en el Gráfico 5 de arriba.
-
-
  
 #%% Punto 2
 

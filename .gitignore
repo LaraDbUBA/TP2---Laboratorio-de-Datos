@@ -1,0 +1,21 @@
+﻿# LaTeX: archivos auxiliares
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.bbl
+*.blg
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Archivos locales
+.DS_Store
+Thumbs.db
