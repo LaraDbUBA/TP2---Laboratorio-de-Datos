@@ -269,12 +269,20 @@ plt.show()
 print("Constantes:", (pix.nunique() <= 1).sum()) # =0, ningun pixel vale lo mismo en todas las imagenes
 print("Desvío < 10:", (pix.std() < 10).sum()) # = 8 se mantienen constantes, de 784 pixeles representa el 1%
 
-# Gráfico 3: boxplot de un píxel relevante vs uno irrelevante, por clase
+# Gráfico 3: comparación de píxeles por clase
 fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 imagenes.boxplot(column="pixel194", by="label", ax=axes[0])
 imagenes.boxplot(column="pixel0", by="label", ax=axes[1])
+axes[0].set_title("Píxel 194")
+axes[1].set_title("Píxel 0")
+for ax in axes:
+    ax.set_xlabel("Clase")
+    ax.set_ylabel("Intensidad del píxel")
+fig.suptitle("")
+plt.tight_layout()
 fig.savefig("graficos/comparacion_pixeles.png", dpi=300, bbox_inches="tight")
 plt.show()
+
 
 # Conclusión final:(1.A)
 # Casi todos los atributos aportan información, solo una porción muy chica(8 pixeles, en las esquinas) es practicamente constante y descartable sin pérdida.
