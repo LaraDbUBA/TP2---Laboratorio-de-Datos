@@ -498,13 +498,9 @@ independientemente de su cantidad de observaciones.
 Preferimos esta medida frente al F1 ponderado,
 ya que nos interesa evaluar el desempeño en
 todas las clases por igual, sin otorgar mayor
-peso a aquellas con más imágenes. Además,
-consideramos que utilizar únicamente accuracy
-podría ocultar diferencias importantes en
-la capacidad del modelo para reconocer
-determinadas categorías.
+peso a aquellas con más imágenes.
 
-Complementamos el F1 macro con accuracy,
+Luego, complementamos el F1 macro con accuracy,
 precision macro y recall macro. De esta manera,
 buscamos evaluar tanto la proporción general
 de predicciones correctas como las diferencias
@@ -520,9 +516,10 @@ Consideramos dos criterios de división
 máximas entre 1 y 10 y dos valores para la
 cantidad mínima de muestras por hoja (1 y 5).
 
-Evaluamos las 40 combinaciones resultantes
-mediante validación cruzada estratificada de
-cinco particiones sobre el conjunto de desarrollo.
+Evaluamos las 40 combinaciones mediante validación cruzada, 
+dividiendo el conjunto de desarrollo en cinco partes y 
+manteniendo aproximadamente la proporción de imágenes de 
+cada clase.
 
 En cada iteración, entrenamos el modelo utilizando
 cuatro particiones y evaluamos su desempeño sobre
