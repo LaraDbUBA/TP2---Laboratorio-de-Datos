@@ -96,7 +96,7 @@ def analisisInicial(df):
     print("VALORES ÚNICOS POR COLUMNA")
     print(df.nunique(), "\n")
 
-def analisis_imagenes():
+def analisis_imagenes(imagenes):
     pixeles = imagenes.drop(columns=["label"], errors="ignore")
 
     print("Valor mínimo:", pixeles.min().min()) #Veo el minimo de TODOS
@@ -228,7 +228,7 @@ def matrizConfusion(X_train, X_test, y_train, y_test, atributos, k):
 analisisInicial(clases)
 analisisInicial(evaluacion)
 analisisInicial(imagenes)
-analisis_imagenes() 
+analisis_imagenes(imagenes) 
 mostrarImagenes(imagenes, 2)
 mostrarImagenes(imagenes, 9)
 mostrarImagenes(imagenes, 6)
@@ -318,15 +318,8 @@ print("Mediana cuadrados:", np.median(d_2_2))
 print("Mediana estrellas:", np.median(d_6_6))
 print("Mediana casas:", np.median(d_9_9))
 
-plt.figure(figsize=(8,5))
-plt.boxplot([d_2_9, d_2_6, d_9_6, d_2_2, d_6_6, d_9_9], tick_labels=["2 vs 9", "2 vs 6", "9 vs 6", "2 vs 2", "6 vs 6", "9 vs 9"])
-plt.ylabel("Distancia euclídea")
-plt.title("Distancia dentro de cada clase y entre clases")
-fig.tight_layout()
-fig.savefig("graficos/distancias_clases.png", dpi=300, bbox_inches="tight")
-plt.show()
 
-# Vemos que la clase 2(los cuadrados) son la clase más compacta ya que tienen una distancia media de 2900 y es la más baja(vemos que tienen la caja más abajo que los otros)
+# Vemos en el grafico que la clase 2(los cuadrados) son la clase más compacta ya que tienen una distancia media de 2900 y es la más baja(vemos que tienen la caja más abajo que los otros)
 # Las estrellas y las casas son clases bastantes heterogeneas, su distancia interna es casi igual a la distancia que tienen con otras clases. Es decir, una casa se parece a otra casa casi tanto como a un cuadrado o a una estrella.
 # Cuadrado vs casa es mas cercano que cuadrado vs estrella y la caja de 2 vs 9 está mas abajo. Los dibujos de cuadrado y casa son más similares que los dibujos de cuadrado vs estrella que se pueden diferenciar más. Pero la diferencia es moderada y las cajas están cerca.
 # Conclusión final 1.b
@@ -697,10 +690,9 @@ ax.set_xticks(range(len(etiquetas)), etiquetas)
 ax.set_yticks(range(len(etiquetas)), etiquetas)
 
 plt.tight_layout()
-plt.show()
 
 plt.savefig("graficos/matriz_confusion_multiclase.png",dpi=300,bbox_inches="tight")
-
+plt.show()
 
 #%% e: Predecimos las clases del conjunto de evaluación
 
@@ -722,7 +714,7 @@ df_predicciones = pd.DataFrame({
     "label": predicciones
 })
 
-performance = 0.8003
+performance = 0.8003 # no deberiamos poner (accuracy_score(y_held, y_pred))?
 nombre_grupo = "Normalizados"
 
 nombre_archivo = (
