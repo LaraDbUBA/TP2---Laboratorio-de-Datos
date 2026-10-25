@@ -52,32 +52,26 @@
 \section{Introducción y análisis exploratorio}
 % ==================================================
 
-El presente trabajo tiene como objetivo analizar y evaluar
-distintos modelos de clasificación supervisada a partir
-de un conjunto de imágenes pertenecientes al dataset
-Quick, Draw! de Google. Buscamos estudiar cómo la
-selección de atributos y de hiperparámetros influye en
-el desempeño de los clasificadores y, particularmente,
-cómo estimar su capacidad para realizar predicciones
-sobre imágenes que no fueron utilizadas durante el
-entrenamiento. Cada imagen está compuesta por 784 píxeles, 
-correspondientesa una matriz de $28 \times 28$, y pertenece
-a una de diez clases posibles.
+El presente trabajo tiene como objetivo analizar y evaluar distintos 
+modelos de clasificación supervisada a partir de un conjunto de imágenes
+pertenecientes al dataset Quick, Draw! de Google. Buscamos estudiar cómo
+la selección de atributos y de hiperparámetros influye en el desempeño 
+de los clasificadores y, particularmente, cómo estimar su capacidad para
+realizar predicciones sobre imágenes no utilizadas durante el entrenamiento.
+Cada imagen está representada por 784 atributos, correspondientes a los píxeles 
+de una matriz de $28 \times 28$, y pertenece a una de diez clases posibles.
 
-Para llevar a cabo el trabajo, realizamos inicialmente un
-análisis exploratorio de los datos, enfocado en estudiar
-la variabilidad de los atributos y las similitudes entre
-imágenes de una misma clase y de clases diferentes.
+Para llevar a cabo el trabajo, realizamos inicialmente un análisis exploratorio de 
+los datos, enfocado en estudiar la variabilidad de los atributos y las similitudes 
+entre imágenes de una misma clase y de clases diferentes.
 
-A partir de este análisis, abordamos dos problemas de
-clasificación. En primer lugar, buscamos distinguir imágenes
-de cuadrados y casas mediante el algoritmo de vecinos más
-cercanos (KNN), evaluando cómo la selección de atributos
-y la cantidad de vecinos afectan el desempeño del modelo.
-Luego, trabajamos con las diez clases utilizando árboles
-de decisión. Para seleccionar sus hiperparámetros recurrimos
-a la validación cruzada y utilizamos un conjunto de control
-independiente para estimar su capacidad de generalización.
+A partir de este análisis, abordamos dos problemas de clasificación. En primer lugar, 
+buscamos distinguir imágenes de cuadrados y casas mediante el algoritmo de los (k) 
+vecinos más cercanos (KNN), evaluando cómo la selección de atributos y la cantidad de 
+vecinos afectan el desempeño del modelo. Luego, trabajamos con las diez clases utilizando 
+árboles de decisión. Para seleccionar sus hiperparámetros recurrimos a la validación cruzada 
+y utilizamos un conjunto de control independiente para estimar su capacidad de generalización.
+
 
 \subsection{Análisis exploratorio}
 
@@ -111,23 +105,24 @@ También comprobamos que ninguno de los 784 píxeles es
 estrictamente constante y que solamente ocho presentan
 un desvío estándar inferior a 10.
 
-Estos resultados nos permiten identificar atributos
+Estos resultados permiten identificar atributos
 potencialmente más relevantes para la clasificación.
-Sin embargo, consideramos que una baja variabilidad
-no es suficiente para determinar que un píxel puede
-descartarse sin afectar el desempeño de los modelos.
-Para comprobarlo, sería necesario comparar los
-resultados obtenidos con y sin estos atributos.
-Decidimos no realizar esta comparación específica,
-dado que consideramos que el análisis exploratorio
-realizado resulta suficiente para identificar
-posibles diferencias en su relevancia.
+Sin embargo, una baja variabilidad total no implica
+necesariamente una baja capacidad discriminativa.
+Del mismo modo, una variabilidad elevada puede deberse
+a diferencias entre dibujos de una misma clase.
+Por lo tanto, estos gráficos permiten formular hipótesis
+sobre la relevancia de los atributos, pero no garantizan
+que eliminar determinados píxeles mejore o preserve
+el desempeño de un clasificador.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.46\textwidth]{graficos/varianza_entre_clases.png}
+    \includegraphics[width=0.46\textwidth]
+    {graficos/varianza_entre_clases.png}
     \hfill
-    \includegraphics[width=0.46\textwidth]{graficos/desvio_total.png}
+    \includegraphics[width=0.46\textwidth]
+    {graficos/desvio_total.png}
     \caption{Variabilidad de los atributos.
     Izquierda: varianza de los promedios por clase.
     Derecha: desvío estándar de cada píxel
@@ -154,10 +149,10 @@ categorías.
 En cambio, el píxel 0 presenta intensidades
 prácticamente nulas en todas las clases, con
 algunos valores atípicos poco frecuentes.
-Por lo tanto, consideramos que este atributo
-podría aportar menos información para la
-clasificación, aunque no podemos asegurar
-que sea completamente irrelevante.
+Por lo tanto, este atributo parece tener menor
+capacidad para diferenciar las clases por sí solo,
+aunque no podemos afirmar que sea completamente
+irrelevante al combinarlo con otros atributos.
 
 \begin{figure}[H]
     \centering
@@ -166,6 +161,42 @@ que sea completamente irrelevante.
     \caption{Distribución de las intensidades de los
     píxeles 194 y 0 según la clase de la imagen.}
     \label{fig:comparacion_pixeles}
+\end{figure}
+
+Para complementar el análisis estadístico, seleccionamos
+aleatoriamente ejemplos de las cuatro clases estudiadas
+en los siguientes apartados: cuadrados, casas, estrellas
+y peces.
+
+La inspección visual de estos dibujos permite apreciar
+las diferentes formas en que puede representarse una
+misma categoría y contextualizar las medidas de
+variabilidad y distancia utilizadas posteriormente.
+
+\begin{figure}[H]
+    \centering
+
+    % Primera fila: cuadrados y casas
+    \includegraphics[width=0.47\textwidth]
+    {graficos/ejemplos_de_clase_2.png}
+    \hfill
+    \includegraphics[width=0.47\textwidth]
+    {graficos/ejemplos_de_clase_9.png}
+
+    \vspace{0.3cm}
+
+    % Segunda fila: estrellas y peces
+    \includegraphics[width=0.47\textwidth]
+    {graficos/ejemplos_de_clase_6.png}
+    \hfill
+    \includegraphics[width=0.47\textwidth]
+    {graficos/ejemplos_de_clase_3.png}
+
+    \caption{Ejemplos de imágenes seleccionadas
+    aleatoriamente de cuatro clases del conjunto
+    de datos. Arriba: cuadrados (2) y casas (9).
+    Abajo: estrellas (6) y peces (3).}
+    \label{fig:ejemplos_clases}
 \end{figure}
 
 A continuación, analizamos las similitudes entre
@@ -179,9 +210,9 @@ A partir de la Figura \ref{fig:distancias_clases},
 observamos que los cuadrados presentan las menores
 distancias internas, con una mediana de 2900,37,
 por lo que constituyen la clase más homogénea de las
-tres analizadas. En cambio, las estrellas y las casas
-presentan medianas de 3240,39 y 3194,37,
-respectivamente, lo que refleja una mayor heterogeneidad
+tres analizadas según esta medida. En cambio, las estrellas
+y las casas presentan medianas de 3240,39 y 3194,37,
+respectivamente, lo que refleja una mayor dispersión
 entre sus representaciones.
 
 En cuanto a las distancias entre clases diferentes,
@@ -198,6 +229,12 @@ entre clases. Esto nos permite reconocer diferencias
 en la homogeneidad y separación de las categorías,
 pero no determinar por sí solo cuáles resultarán más
 fáciles de distinguir mediante un clasificador.
+
+Además, debemos considerar que la distancia euclídea
+compara las intensidades de los píxeles en posiciones
+correspondientes. En consecuencia, dibujos visualmente
+similares pueden presentar distancias elevadas si
+difieren en su ubicación, tamaño u orientación.
 
 \begin{figure}[H]
     \centering
@@ -221,7 +258,7 @@ una forma difusa, lo que sugiere diferencias entre las
 representaciones de los peces. Por otra parte, notamos
 que la mayor variabilidad se concentra en la región
 superior y los laterales de las imágenes, mientras que
-la mitad inferior presenta valores considerablemente
+la región inferior presenta valores considerablemente
 menores.
 
 \begin{figure}[H]
@@ -248,10 +285,10 @@ y cuadrados son similares.
 Por lo tanto, encontramos variaciones apreciables
 entre las representaciones de peces, aunque su
 dispersión interna no resulta particularmente elevada
-en comparación con la de los cuadrados. Al igual que
-en el análisis anterior, estas observaciones no nos
-permiten determinar por sí solas qué tan fácilmente
-pueden clasificarse las imágenes de esta categoría.
+en comparación con la de los cuadrados, según la
+distancia empleada. Estas observaciones no permiten
+determinar por sí solas qué tan fácilmente pueden
+clasificarse las imágenes de esta categoría.
 
 \begin{figure}[H]
     \centering
@@ -261,6 +298,18 @@ pueden clasificarse las imágenes de esta categoría.
     dentro de las clases 3 y 2, y entre ambas clases.}
     \label{fig:distancias_peces}
 \end{figure}
+
+El análisis exploratorio de imágenes presenta dificultades asociadas a su 
+alta dimensionalidad y a la importancia de la disposición espacial de los píxeles.
+El estudio individual de las intensidades no permite recuperar completamente las formas 
+de los dibujos, mientras que diferencias en la posición, el tamaño o la orientación pueden 
+generar variaciones importantes dentro de una misma clase.
+
+Para abordar estas dificultades, combinamos herramientas estadísticas y visuales que nos 
+permitieron identificar patrones de variabilidad y similitud. Sin embargo, estos resultados 
+no permiten determinar por sí solos la capacidad predictiva de los atributos ni la separabilidad 
+de las clases. Por ello, en los siguientes ejercicios evaluamos empíricamente el desempeño de 
+distintos clasificadores y cómo este cambia según los atributos e hiperparámetros seleccionados.
 
 % ==================================================
 \section{Experimentos realizados}
