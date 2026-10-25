@@ -697,9 +697,8 @@ ax.set_xticks(range(len(etiquetas)), etiquetas)
 ax.set_yticks(range(len(etiquetas)), etiquetas)
 
 plt.tight_layout()
-plt.show()
-
 plt.savefig("graficos/matriz_confusion_multiclase.png",dpi=300,bbox_inches="tight")
+plt.show()
 
 
 #%% e: Predecimos las clases del conjunto de evaluación
