@@ -258,7 +258,7 @@ visualizar la variabilidad interna de la categoría.
 
 Como se observa en la Figura
 \ref{fig:variabilidad_peces}, la imagen promedio presenta
-una forma difusa, lo que sugiere diferencias entre las
+una forma difusa, lo que sugiere diferencias importantes entre las
 representaciones de los peces. Por otra parte, notamos
 que la mayor variabilidad se concentra en la región
 superior y los laterales de las imágenes, mientras que
@@ -281,7 +281,7 @@ entre peces y cuadrados y entre pares de cuadrados.
 En la Figura \ref{fig:distancias_peces} observamos que
 las distancias internas entre peces presentan una
 mediana cercana a 2900, ligeramente inferior a la
-distancia mediana entre peces y cuadrados, próxima
+distancia mediana entre peces y cuadrados que es cercana
 a 3120. Sin embargo, las distribuciones se solapan
 considerablemente y las distancias internas de peces
 y cuadrados son similares.
@@ -289,9 +289,8 @@ y cuadrados son similares.
 Por lo tanto, encontramos variaciones apreciables
 entre las representaciones de peces, aunque su
 dispersión interna no resulta particularmente elevada
-en comparación con la de los cuadrados, según la
-distancia empleada. Estas observaciones no permiten
-determinar por sí solas qué tan fácilmente pueden
+en comparación con la de los cuadrados. Estas observaciones 
+no permiten determinar por sí solas qué tan fácilmente pueden
 clasificarse las imágenes de esta categoría.
 
 \begin{figure}[H]
@@ -303,7 +302,7 @@ clasificarse las imágenes de esta categoría.
     \label{fig:distancias_peces}
 \end{figure}
 
-El análisis exploratorio de imágenes presenta dificultades asociadas a su 
+Concluyendo esta sección, el análisis exploratorio de imágenes presenta dificultades asociadas a su 
 alta dimensionalidad y a la importancia de la disposición espacial de los píxeles.
 El estudio individual de las intensidades no permite recuperar completamente las formas 
 de los dibujos, mientras que diferencias en la posición, el tamaño o la orientación pueden 
@@ -355,12 +354,11 @@ Esto nos permite considerar conjuntamente
 ambos tipos de errores: clasificar cuadrados
 como casas y clasificar casas como cuadrados.
 
+
 Posteriormente, dividimos los datos aleatoriamente
 en un conjunto de entrenamiento (70\%) y uno
-de prueba (30\%). Utilizamos una partición
-estratificada para conservar aproximadamente
-las proporciones originales de ambas clases
-en los dos conjuntos.
+de prueba (30\%) procurando mantener la proporción
+de clases en ambos subconjuntos.
 
 \subsection{Selección de atributos}
 
@@ -374,8 +372,7 @@ diferencia absoluta entre su intensidad promedio
 en las imágenes de cuadrados y casas. Utilizamos
 exclusivamente el conjunto de entrenamiento para
 realizar estos cálculos, evitando incorporar
-información del conjunto de prueba en la selección
-de atributos.
+información del conjunto de prueba.
 
 A partir de estas diferencias, ordenamos los píxeles
 de mayor a menor y construimos cinco conjuntos
@@ -390,94 +387,67 @@ obtuvieron valores de F1-score entre 0,845 y 0,856,
 presentando resultados relativamente similares.
 En cambio, las selecciones aleatorias mostraron
 una mayor variabilidad, con valores entre 0,478
-y 0,900. Incluso, una de las combinaciones
+y 0,900. Por lo que una de las combinaciones
 aleatorias obtuvo el mejor desempeño entre los
 conjuntos de tres atributos evaluados.
 
 Estos resultados sugieren que seleccionar los
 píxeles con mayores diferencias entre los promedios
 de clase no garantiza obtener la combinación
-más adecuada para KNN. Asimismo, observamos que
+más adecuada para KNN. A su vez, observamos que
 el desempeño puede variar considerablemente
 según los atributos seleccionados, incluso
 cuando se mantiene fija su cantidad.
 
 Posteriormente, analizamos cómo cambia el desempeño
-al aumentar la cantidad de atributos. Para ello,
+modificando la cantidad de atributos. Para ello,
 entrenamos modelos utilizando los primeros 1, 2,
 3, 5, 10, 50 y 100 píxeles del ranking.
 
-Encontramos una mejora importante a medida que
-incorporamos más atributos. Con tres píxeles,
+Esto resultó en una mejora significativa a medida que
+aumentaba la cantidad de atributos considerados. Con tres píxeles,
 obtuvimos un F1-score de 0,845, mientras que
 con diez aumentó a 0,915 y con cien alcanzó
 0,968. Este último modelo también obtuvo una
-accuracy de 0,968.
+accuracy de 0,968, clasificando incorrectamente 28 cuadrados y 
+29 casas.
 
-Las matrices de confusión permiten observar
-esta mejora con mayor detalle. Mientras que
-el modelo con tres píxeles clasificó
-incorrectamente 222 cuadrados y 75 casas,
-el modelo con cien píxeles redujo estos
-errores a 28 y 29, respectivamente.
+Por lo tanto, observamos que incorporar una mayor cantidad de 
+atributos mejoró el desempeño de KNN en los experimentos realizados. 
+Sin embargo, todavía restaría analizar cómo se comporta el modelo 
+con otras cantidades de vecinos y con el conjunto completo de 
+atributos.
 
-Por lo tanto, los resultados indican que
-incorporar una mayor cantidad de atributos
-mejoró el desempeño de KNN en los experimentos
-realizados. Sin embargo, todavía resta
-analizar cómo se comporta el modelo con
-otras cantidades de vecinos y con el conjunto
-completo de atributos.
-
-
-Todas las pruebas se realizaron utilizando
-la misma partición, con el objetivo de comparar
-las distintas configuraciones de KNN bajo
-las mismas condiciones.
+Todas las pruebas se realizaron utilizando la misma división entre 
+entrenamiento y prueba, con el objetivo de comparar las distintas 
+configuraciones de KNN bajo las mismas condiciones.
 
 
 \subsection{Comparación de hiperparámetros y resultados}
 
-Para profundizar el análisis anterior, evaluamos
-cómo influyen conjuntamente la cantidad de atributos
-y el número de vecinos en el desempeño de KNN.
-
-Consideramos ocho valores de $k$ (1, 3, 5, 7, 11,
-15, 25 y 30) y diez cantidades de atributos
-(1, 2, 3, 5, 10, 20, 50, 100, 200 y 784),
-obteniendo un total de 80 configuraciones.
-En todos los casos, utilizamos los primeros
-píxeles del ordenamiento construido anteriormente
-y mantuvimos los mismos conjuntos de entrenamiento
-y prueba.
+Para analizar cómo influyen conjuntamente la cantidad de atributos 
+y el número de vecinos en el desempeño de KNN, evaluamos ocho valores de 
+(k) (1, 3, 5, 7, 11, 15, 25 y 30) y diez cantidades de atributos 
+(1, 2, 3, 5, 10, 20, 50, 100, 200 y 784), obteniendo un total de 80 configuraciones. 
+En todos los casos, utilizamos los primeros píxeles del ordenamiento construido 
+anteriormente y mantuvimos la misma división entre entrenamiento y prueba.
 
 Como podemos observar en la Figura
-\ref{fig:comparacion_knn}, la cantidad de atributos
-tiene una influencia considerable sobre el desempeño.
-Con menos de diez píxeles, los valores de F1-score
-se mantienen aproximadamente entre 0,83 y 0,86.
-Al incorporar más atributos, encontramos una mejora
-importante, alcanzando valores superiores a 0,95
-con 50 a 200 píxeles.
+\ref{fig:comparacion_knn}, al incorporar más atributos encontramos una mejora importante 
+en el desempeño, alcanzando valores de F1-score superiores a 0,95 con 50 a 200 píxeles. 
+Sin embargo, para todos los valores de (k) evaluados, los modelos con 200 píxeles obtuvieron 
+mejores resultados que aquellos que utilizaron los 784 disponibles. Esto sugiere que incorporar 
+atributos adicionales no siempre resulta beneficioso, posiblemente porque algunos aportan información 
+poco relevante y afectan las distancias entre las imágenes.
 
-Sin embargo, esta mejora no continúa al utilizar
-los 784 atributos disponibles. Para todos los
-valores de $k$ evaluados, los modelos con 200
-píxeles obtuvieron un F1-score superior al de
-aquellos que utilizaron el conjunto completo.
-Esto sugiere que incorporar atributos adicionales
-no siempre resulta beneficioso para KNN,
-posiblemente porque algunos aportan información
-poco relevante y afectan las distancias entre
-las imágenes.
-
-Por otra parte, observamos que el efecto de
+Por otra parte, notamos que el efecto de
 modificar $k$ depende de la cantidad de atributos
 utilizados. Con pocos píxeles, aumentar el número
 de vecinos produjo pequeñas mejoras en algunos
 casos, mientras que con cantidades mayores
 las diferencias fueron reducidas y no siguieron
-una tendencia uniforme.
+una tendencia uniforme. Sin embargo, aunque las diferencias fueron generalmente 
+menores que las observadas al modificar la cantidad de píxeles.
 
 \begin{figure}[H]
     \centering
@@ -495,22 +465,6 @@ Entre las 80 configuraciones evaluadas,
 el mayor F1-score fue de 0,975, obtenido
 con $k=1$ y los 200 primeros atributos
 del ordenamiento.
-
-En conjunto, los resultados muestran que
-la selección y la cantidad de atributos
-tuvieron una influencia importante sobre
-el desempeño de KNN. Si bien la cantidad
-de vecinos también produjo diferencias,
-estas fueron generalmente menores que
-las observadas al modificar los atributos.
-
-Cabe señalar que todas las configuraciones
-fueron comparadas utilizando el mismo
-conjunto de prueba. Por lo tanto, el
-mejor resultado observado no constituye
-por sí solo una estimación independiente
-del desempeño que tendría esa configuración
-sobre nuevas imágenes.
 
 % ==================================================
 \section{Clasificación multiclase mediante árboles de decisión}
