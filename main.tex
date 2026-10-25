@@ -55,22 +55,22 @@
 El presente trabajo tiene como objetivo analizar y evaluar distintos 
 modelos de clasificación supervisada a partir de un conjunto de imágenes
 pertenecientes al dataset Quick, Draw! de Google \cite{ha2017,quickdraw}. Buscamos estudiar cómo
-la selección de atributos y de hiperparámetros influye en el desempeño 
-de los clasificadores y, particularmente, cómo estimar su capacidad para
+la selección de atributos e hiperparámetros influye en el desempeño 
+de los clasificadores y cómo estimar su capacidad para
 realizar predicciones sobre imágenes no utilizadas durante el entrenamiento.
 Cada imagen está representada por 784 atributos, correspondientes a los píxeles 
 de una matriz de $28 \times 28$, y pertenece a una de diez clases posibles.
 
 Para llevar a cabo el trabajo, realizamos inicialmente un análisis exploratorio de 
 los datos, enfocado en estudiar la variabilidad de los atributos y las similitudes 
-entre imágenes de una misma clase y de clases diferentes.
+entre imágenes pertenecientes tanto a una misma clase como a clases diferentes. 
 
 A partir de este análisis, abordamos dos problemas de clasificación. En primer lugar, 
 buscamos distinguir imágenes de cuadrados y casas mediante el algoritmo de los (k) 
 vecinos más cercanos (KNN), evaluando cómo la selección de atributos y la cantidad de 
 vecinos afectan el desempeño del modelo. Luego, trabajamos con las diez clases utilizando 
 árboles de decisión. Para seleccionar sus hiperparámetros recurrimos a la validación cruzada 
-y utilizamos un conjunto de control independiente para estimar su capacidad de generalización.
+y utilizamos un conjunto de control independiente para estimar su potencial generalización.
 
 % ==================================================
 \section{Análisis exploratorio de los datos}
@@ -81,7 +81,7 @@ etiquetadas, mientras que el conjunto de evaluación cuenta
 con 6.030 imágenes sin etiquetar, identificadas mediante
 un código único. Comprobamos que los atributos son de tipo
 entero y que sus intensidades toman valores entre 0 y 255,
-de los cuales encontramos 143 valores distintos. Tampoco
+de los cuales encontramos 143 valores distintos. No
 identificamos valores faltantes ni filas duplicadas en
 los conjuntos analizados.
 
@@ -109,7 +109,7 @@ un desvío estándar inferior a 10.
 Estos resultados permiten identificar atributos
 potencialmente más relevantes para la clasificación.
 Sin embargo, consideramos que la variabilidad de un atributo 
-no es suficiente para determinar su utilidad en la clasificación. 
+no es suficiente para determinar su utilidad en la misma. 
 Un píxel con poca variación podría aportar información para distinguir 
 ciertas clases, mientras que uno con mayor variabilidad podría presentar 
 diferencias importantes incluso entre imágenes de una misma categoría. 
@@ -164,12 +164,11 @@ irrelevante al combinarlo con otros atributos.
     \label{fig:comparacion_pixeles}
 \end{figure}
 
-Para complementar el análisis estadístico, seleccionamos
-aleatoriamente ejemplos de las cuatro clases estudiadas
-en los siguientes apartados: cuadrados, casas, estrellas
+Luego, seleccionamos aleatoriamente ejemplos de las cuatro clases 
+estudiadas en los siguientes apartados: cuadrados, casas, estrellas
 y peces.
 
-La inspección visual de estos dibujos permite apreciar
+Observar estos dibujos permite apreciar
 las diferentes formas en que puede representarse una
 misma categoría y contextualizar las medidas de
 variabilidad y distancia utilizadas posteriormente.
@@ -220,19 +219,15 @@ En cuanto a las distancias entre clases diferentes,
 encontramos que la mayor distancia media corresponde
 a cuadrados y estrellas (3502,25), seguidos de casas
 y estrellas (3369,07) y cuadrados y casas (3326,96).
-Por lo tanto, los cuadrados y las estrellas presentan
-las mayores diferencias promedio según la distancia utilizada.
 
-Según las distancias euclídeas calculadas,
-los cuadrados y las estrellas presentan
-una mayor separación promedio que los
-cuadrados y las casas. Esto sugiere que
-los primeros podrían resultar más fáciles
+Por lo tanto, los cuadrados y las estrellas presentan
+una mayor separación promedio que las demás clases. 
+Esto sugiere que podrían resultar más fáciles
 de diferenciar mediante un clasificador
 basado en distancias.
 
 Sin embargo, observamos un solapamiento
-considerable entre las distribuciones
+considerable entre la distribución
 de distancias internas y entre clases.
 Por lo tanto, no podemos asegurar que
 esta mayor separación se traduzca
