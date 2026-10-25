@@ -35,9 +35,6 @@ CARPETA = Path(__file__).resolve().parent
 GRAFICOS = Path("graficos")
 GRAFICOS.mkdir(exist_ok=True)
 
-#Chequear como hacer para que suba igual tanto para los profesores como para nosotros,
-#Creo que se pued optimizar con los path... quedará para después
-
 clases = pd.read_csv("clases.csv")
 evaluacion = pd.read_csv("evaluacion.csv")
 imagenes = pd.read_csv("imagenes.csv")
@@ -178,7 +175,7 @@ balanceado) y qué tipos de errores puede cometer el modelo. Explicar por
 qué decidieron utilizar esas métricas y no otras.
 """
 
- # puse algo en el informe
+ # Elegimos Accuracy y complementamos con F1 score, ya que el conjunto de datos está balanceado y nos interesa tanto la precision como el recall.
 """
 c. Separar los datos en conjuntos de train y test.
 """
