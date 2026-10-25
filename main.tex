@@ -49,12 +49,12 @@
 \maketitle
 
 % ==================================================
-\section{Introducción y análisis exploratorio}
+\section{Introducción}
 % ==================================================
 
 El presente trabajo tiene como objetivo analizar y evaluar distintos 
 modelos de clasificación supervisada a partir de un conjunto de imágenes
-pertenecientes al dataset Quick, Draw! de Google. Buscamos estudiar cómo
+pertenecientes al dataset Quick, Draw! de Google \cite{ha2017,quickdraw}. Buscamos estudiar cómo
 la selección de atributos y de hiperparámetros influye en el desempeño 
 de los clasificadores y, particularmente, cómo estimar su capacidad para
 realizar predicciones sobre imágenes no utilizadas durante el entrenamiento.
@@ -72,8 +72,9 @@ vecinos afectan el desempeño del modelo. Luego, trabajamos con las diez clases 
 árboles de decisión. Para seleccionar sus hiperparámetros recurrimos a la validación cruzada 
 y utilizamos un conjunto de control independiente para estimar su capacidad de generalización.
 
-
-\subsection{Análisis exploratorio}
+% ==================================================
+\section{Análisis exploratorio de los datos}
+% ==================================================
 
 El conjunto de entrenamiento contiene 30.000 imágenes
 etiquetadas, mientras que el conjunto de evaluación cuenta
@@ -107,14 +108,14 @@ un desvío estándar inferior a 10.
 
 Estos resultados permiten identificar atributos
 potencialmente más relevantes para la clasificación.
-Sin embargo, una baja variabilidad total no implica
-necesariamente una baja capacidad discriminativa.
-Del mismo modo, una variabilidad elevada puede deberse
-a diferencias entre dibujos de una misma clase.
-Por lo tanto, estos gráficos permiten formular hipótesis
-sobre la relevancia de los atributos, pero no garantizan
-que eliminar determinados píxeles mejore o preserve
-el desempeño de un clasificador.
+Sin embargo, consideramos que la variabilidad de un atributo 
+no es suficiente para determinar su utilidad en la clasificación. 
+Un píxel con poca variación podría aportar información para distinguir 
+ciertas clases, mientras que uno con mayor variabilidad podría presentar 
+diferencias importantes incluso entre imágenes de una misma categoría. 
+Por lo tanto, aunque estos resultados nos permiten identificar atributos 
+potencialmente relevantes, sería necesario evaluar el desempeño de los 
+modelos con distintas selecciones de píxeles para determinar su utilidad.
 
 \begin{figure}[H]
     \centering
@@ -220,15 +221,23 @@ encontramos que la mayor distancia media corresponde
 a cuadrados y estrellas (3502,25), seguidos de casas
 y estrellas (3369,07) y cuadrados y casas (3326,96).
 Por lo tanto, los cuadrados y las estrellas presentan
-las mayores diferencias promedio según la distancia
-euclídea utilizada.
+las mayores diferencias promedio según la distancia utilizada.
 
-No obstante, observamos un solapamiento considerable
-entre las distribuciones de distancias internas y
-entre clases. Esto nos permite reconocer diferencias
-en la homogeneidad y separación de las categorías,
-pero no determinar por sí solo cuáles resultarán más
-fáciles de distinguir mediante un clasificador.
+Según las distancias euclídeas calculadas,
+los cuadrados y las estrellas presentan
+una mayor separación promedio que los
+cuadrados y las casas. Esto sugiere que
+los primeros podrían resultar más fáciles
+de diferenciar mediante un clasificador
+basado en distancias.
+
+Sin embargo, observamos un solapamiento
+considerable entre las distribuciones
+de distancias internas y entre clases.
+Por lo tanto, no podemos asegurar que
+esta mayor separación se traduzca
+necesariamente en un mejor desempeño
+predictivo.
 
 Además, debemos considerar que la distancia euclídea
 compara las intensidades de los píxeles en posiciones
@@ -312,111 +321,506 @@ de las clases. Por ello, en los siguientes ejercicios evaluamos empíricamente e
 distintos clasificadores y cómo este cambia según los atributos e hiperparámetros seleccionados.
 
 % ==================================================
-\section{Experimentos realizados}
+\section{Clasificación binaria mediante KNN}
 % ==================================================
 
-En esta sección se describen los experimentos realizados,
-las decisiones tomadas durante el desarrollo y los resultados
-obtenidos. Para cada experimento se especifican el objetivo,
-la metodología y las observaciones principales.
+\subsection{Preparación de los datos y métricas de evaluación}
 
-\subsection{Preparación de los datos}
 
-Antes de entrenar los modelos, se realizó [describir el
-preprocesamiento aplicado]. Se utilizaron los conjuntos de
-datos de entrenamiento y evaluación según lo establecido
-en la consigna.
+Para el primer problema de clasificación, trabajamos
+únicamente con las imágenes correspondientes a cuadrados
+(clase 2) y casas (clase 9), utilizando el algoritmo
+de los $k$ vecinos más cercanos (KNN).
 
-Las decisiones de preparación de los datos se tomaron
-considerando [justificar brevemente las decisiones relevantes].
+El subconjunto resultante contiene 6.030 imágenes:
+3.085 cuadrados (51,16\%) y 2.945 casas (48,84\%).
+Dado que ambas categorías presentan proporciones
+similares, consideramos que el conjunto se encuentra
+balanceado.
 
-\subsection{Primer experimento: [nombre del experimento]}
+Para evaluar los modelos, utilizamos accuracy,
+precision, recall y F1-score. Dado que el conjunto
+se encuentra balanceado, consideramos que la
+accuracy constituye una medida adecuada del
+desempeño general, ya que permite calcular la
+proporción total de predicciones correctas.
 
-El objetivo de este experimento fue [objetivo].
+Complementamos esta medida con precision y recall,
+considerando a las casas como clase positiva.
+La primera indica qué proporción de las imágenes
+clasificadas como casas realmente corresponde a
+esa categoría, mientras que la segunda representa
+qué proporción de las casas fue identificada
+correctamente.
 
-Para realizarlo, se utilizó [modelo o método], con
-[describir brevemente la configuración y los parámetros
-más importantes].
+Por último, utilizamos el F1-score para comparar
+las distintas configuraciones de KNN, ya que
+combina precision y recall en una única medida.
+Esto nos permite considerar conjuntamente
+ambos tipos de errores: clasificar cuadrados
+como casas y clasificar casas como cuadrados.
 
-Los resultados obtenidos fueron [incluir resultados
-relevantes y métricas]. A partir de ellos, se observó que
-[interpretar el resultado, sin limitarse a repetir los valores].
+Posteriormente, dividimos los datos aleatoriamente
+en un conjunto de entrenamiento (70\%) y uno
+de prueba (30\%). Utilizamos una partición
+estratificada para conservar aproximadamente
+las proporciones originales de ambas clases
+en los dos conjuntos.
 
-% Insertar el gráfico si aporta información.
-%
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.75\textwidth]{imagenes/experimento1.png}
-%     \caption{Resultados del primer experimento.}
-%     \label{fig:experimento1}
-% \end{figure}
+\subsection{Selección de atributos}
 
-\subsection{Segundo experimento: [nombre del experimento]}
+Para estudiar cómo influye la selección de atributos
+en el desempeño de KNN, realizamos distintos
+experimentos manteniendo fija la cantidad de vecinos
+en $k=5$.
 
-En este experimento se buscó [objetivo], modificando
-[parámetros, atributos o modelo respecto del experimento
-anterior].
+En primer lugar, calculamos para cada píxel la
+diferencia absoluta entre su intensidad promedio
+en las imágenes de cuadrados y casas. Utilizamos
+exclusivamente el conjunto de entrenamiento para
+realizar estos cálculos, evitando incorporar
+información del conjunto de prueba en la selección
+de atributos.
 
-Se obtuvo [resultados principales]. La comparación con
-el experimento anterior permite observar que [interpretación
-de las diferencias].
+A partir de estas diferencias, ordenamos los píxeles
+de mayor a menor y construimos cinco conjuntos
+distintos de tres atributos, seleccionados entre
+los ocho mejor posicionados. Para comparar este
+criterio con una selección aleatoria, también
+evaluamos cinco conjuntos de tres píxeles elegidos
+al azar.
 
-% Agregar subsecciones para los experimentos que realmente
-% se hayan realizado, sin repetir información innecesaria.
+Los conjuntos seleccionados mediante el ranking
+obtuvieron valores de F1-score entre 0,845 y 0,856,
+presentando resultados relativamente similares.
+En cambio, las selecciones aleatorias mostraron
+una mayor variabilidad, con valores entre 0,478
+y 0,900. Incluso, una de las combinaciones
+aleatorias obtuvo el mejor desempeño entre los
+conjuntos de tres atributos evaluados.
 
-\subsection{Comparación de resultados}
+Estos resultados sugieren que seleccionar los
+píxeles con mayores diferencias entre los promedios
+de clase no garantiza obtener la combinación
+más adecuada para KNN. Asimismo, observamos que
+el desempeño puede variar considerablemente
+según los atributos seleccionados, incluso
+cuando se mantiene fija su cantidad.
 
-Para comparar los modelos y configuraciones evaluados,
-se resumen los resultados principales en la Tabla
-\ref{tab:resultados}.
+Posteriormente, analizamos cómo cambia el desempeño
+al aumentar la cantidad de atributos. Para ello,
+entrenamos modelos utilizando los primeros 1, 2,
+3, 5, 10, 50 y 100 píxeles del ranking.
+
+Encontramos una mejora importante a medida que
+incorporamos más atributos. Con tres píxeles,
+obtuvimos un F1-score de 0,845, mientras que
+con diez aumentó a 0,915 y con cien alcanzó
+0,968. Este último modelo también obtuvo una
+accuracy de 0,968.
+
+Las matrices de confusión permiten observar
+esta mejora con mayor detalle. Mientras que
+el modelo con tres píxeles clasificó
+incorrectamente 222 cuadrados y 75 casas,
+el modelo con cien píxeles redujo estos
+errores a 28 y 29, respectivamente.
+
+Por lo tanto, los resultados indican que
+incorporar una mayor cantidad de atributos
+mejoró el desempeño de KNN en los experimentos
+realizados. Sin embargo, todavía resta
+analizar cómo se comporta el modelo con
+otras cantidades de vecinos y con el conjunto
+completo de atributos.
+
+
+Todas las pruebas se realizaron utilizando
+la misma partición, con el objetivo de comparar
+las distintas configuraciones de KNN bajo
+las mismas condiciones.
+
+
+\subsection{Comparación de hiperparámetros y resultados}
+
+Para profundizar el análisis anterior, evaluamos
+cómo influyen conjuntamente la cantidad de atributos
+y el número de vecinos en el desempeño de KNN.
+
+Consideramos ocho valores de $k$ (1, 3, 5, 7, 11,
+15, 25 y 30) y diez cantidades de atributos
+(1, 2, 3, 5, 10, 20, 50, 100, 200 y 784),
+obteniendo un total de 80 configuraciones.
+En todos los casos, utilizamos los primeros
+píxeles del ordenamiento construido anteriormente
+y mantuvimos los mismos conjuntos de entrenamiento
+y prueba.
+
+Como podemos observar en la Figura
+\ref{fig:comparacion_knn}, la cantidad de atributos
+tiene una influencia considerable sobre el desempeño.
+Con menos de diez píxeles, los valores de F1-score
+se mantienen aproximadamente entre 0,83 y 0,86.
+Al incorporar más atributos, encontramos una mejora
+importante, alcanzando valores superiores a 0,95
+con 50 a 200 píxeles.
+
+Sin embargo, esta mejora no continúa al utilizar
+los 784 atributos disponibles. Para todos los
+valores de $k$ evaluados, los modelos con 200
+píxeles obtuvieron un F1-score superior al de
+aquellos que utilizaron el conjunto completo.
+Esto sugiere que incorporar atributos adicionales
+no siempre resulta beneficioso para KNN,
+posiblemente porque algunos aportan información
+poco relevante y afectan las distancias entre
+las imágenes.
+
+Por otra parte, observamos que el efecto de
+modificar $k$ depende de la cantidad de atributos
+utilizados. Con pocos píxeles, aumentar el número
+de vecinos produjo pequeñas mejoras en algunos
+casos, mientras que con cantidades mayores
+las diferencias fueron reducidas y no siguieron
+una tendencia uniforme.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]
+    {graficos/comparacion_f1_atributos.png}
+    \caption{Desempeño de KNN según la cantidad
+    de vecinos y de atributos utilizados.
+    Izquierda: F1-score en función de $k$.
+    Derecha: F1-score según la cantidad
+    de atributos para distintos valores de $k$.}
+    \label{fig:comparacion_knn}
+\end{figure}
+
+Entre las 80 configuraciones evaluadas,
+el mayor F1-score fue de 0,975, obtenido
+con $k=1$ y los 200 primeros atributos
+del ordenamiento.
+
+En conjunto, los resultados muestran que
+la selección y la cantidad de atributos
+tuvieron una influencia importante sobre
+el desempeño de KNN. Si bien la cantidad
+de vecinos también produjo diferencias,
+estas fueron generalmente menores que
+las observadas al modificar los atributos.
+
+Cabe señalar que todas las configuraciones
+fueron comparadas utilizando el mismo
+conjunto de prueba. Por lo tanto, el
+mejor resultado observado no constituye
+por sí solo una estimación independiente
+del desempeño que tendría esa configuración
+sobre nuevas imágenes.
+
+% ==================================================
+\section{Clasificación multiclase mediante árboles de decisión}
+% ==================================================
+
+\subsection{Preparación de los datos y métricas de evaluación}
+
+Para el segundo problema de clasificación, buscamos
+predecir a cuál de las diez clases pertenece cada
+imagen mediante árboles de decisión.
+
+En primer lugar, dividimos el conjunto de 30.000
+imágenes etiquetadas en dos subconjuntos:
+desarrollo (80\%) y control o held-out (20\%).
+Realizamos una partición aleatoria estratificada
+para conservar aproximadamente las proporciones
+originales de las clases.
+
+Utilizamos el conjunto de desarrollo para entrenar
+y comparar distintas configuraciones del modelo,
+mientras que reservamos el conjunto de control
+para evaluar su desempeño una vez seleccionados
+los hiperparámetros.
+
+Como métrica principal elegimos F1 macro, que
+calcula el F1-score de cada clase y luego
+promedia los resultados, otorgando la misma
+importancia a todas las categorías,
+independientemente de su cantidad de observaciones.
+
+Preferimos esta medida frente al F1 ponderado,
+ya que nos interesa evaluar el desempeño en
+todas las clases por igual, sin otorgar mayor
+peso a aquellas con más imágenes. Además,
+consideramos que utilizar únicamente accuracy
+podría ocultar diferencias importantes en
+la capacidad del modelo para reconocer
+determinadas categorías.
+
+Complementamos el F1 macro con accuracy,
+precision macro y recall macro. De esta manera,
+buscamos evaluar tanto la proporción general
+de predicciones correctas como las diferencias
+en el desempeño del clasificador entre clases.
+
+
+\subsection{Selección de hiperparámetros mediante validación cruzada}
+
+Para seleccionar el árbol de decisión, comparamos
+distintas configuraciones de hiperparámetros.
+Consideramos dos criterios de división
+(\texttt{gini} y \texttt{entropy}), profundidades
+máximas entre 1 y 10 y dos valores para la
+cantidad mínima de muestras por hoja (1 y 5).
+
+Evaluamos las 40 combinaciones resultantes
+mediante validación cruzada estratificada de
+cinco particiones sobre el conjunto de desarrollo.
+
+En cada iteración, entrenamos el modelo utilizando
+cuatro particiones y evaluamos su desempeño sobre
+la restante. Repetimos el procedimiento hasta
+utilizar cada partición como conjunto de validación.
+
+Para comparar las configuraciones, calculamos
+el F1 macro promedio de las cinco evaluaciones
+y registramos también su desvío estándar.
+
+Finalmente, seleccionamos la configuración
+que obtuvo el mayor F1 macro promedio.
+Durante todo este procedimiento mantuvimos
+apartado el conjunto held-out, evitando utilizar
+sus observaciones para elegir los hiperparámetros.
+
+A partir de los resultados obtenidos, seleccionamos
+el árbol con criterio de división \texttt{entropy},
+profundidad máxima de 10 y un mínimo de cinco
+muestras por hoja. Esta configuración alcanzó
+un F1 macro promedio de 0,7816, con un desvío
+estándar de 0,0048 entre las cinco particiones.
+
+Además del F1 macro utilizado para seleccionar
+el modelo, calculamos las restantes métricas
+sobre las cinco particiones de validación cruzada.
+Obtuvimos una accuracy promedio de 0,7820,
+una precision macro de 0,7824 y un recall macro
+de 0,7821. Estos resultados muestran un desempeño
+similar entre las distintas métricas consideradas.
+
+Observamos que las configuraciones con mayor
+desempeño utilizaron una profundidad máxima de 10,
+el valor más alto considerado en el experimento.
+Esto sugiere que permitir una mayor profundidad
+resultó beneficioso dentro del rango evaluado,
+aunque no podemos determinar cómo se comportaría
+el modelo con profundidades superiores.
+
+Por otra parte, las diferencias entre las mejores
+configuraciones fueron reducidas. En particular,
+el segundo modelo, también con criterio
+\texttt{entropy} y profundidad 10, pero con una
+muestra mínima por hoja, obtuvo un F1 macro
+promedio de 0,7810.
+
+Si bien seleccionamos la configuración con mayor
+F1 macro promedio, estos resultados no permiten
+afirmar que su desempeño sea considerablemente
+superior al de otras configuraciones cercanas.
+
 
 \begin{table}[H]
     \centering
-    \caption{Comparación de los experimentos realizados.}
-    \label{tab:resultados}
-    \begin{tabular}{lcc}
+    \caption{Mejores configuraciones de árboles
+    de decisión según validación cruzada.}
+    \label{tab:mejores_arboles}
+
+    \begin{tabular}{lccc}
         \toprule
-        Experimento & Métrica utilizada & Resultado \\
+        Criterio & Profundidad & Mín. hoja & F1 macro \\
         \midrule
-        Experimento 1 & [métrica] & [valor] \\
-        Experimento 2 & [métrica] & [valor] \\
-        Experimento 3 & [métrica] & [valor] \\
+        Entropy & 10 & 5 & 0,7816 \\
+        Entropy & 10 & 1 & 0,7810 \\
+        Gini & 10 & 5 & 0,7797 \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-Los resultados muestran que [resumir qué configuración
-obtuvo el mejor desempeño y qué diferencias relevantes
-se encontraron].
+
+\subsection{Evaluación sobre el conjunto de control}
+
+Una vez seleccionada la mejor configuración mediante
+validación cruzada, entrenamos el árbol de decisión
+utilizando las 24.000 imágenes del conjunto de
+desarrollo. Posteriormente, evaluamos su desempeño
+sobre las 6.000 imágenes del conjunto held-out,
+que hasta este momento no habían sido utilizadas
+para entrenar ni seleccionar el modelo.
+
+Obtuvimos una accuracy de 0,8003, una precision
+macro de 0,8013, un recall macro de 0,8005
+y un F1 macro de 0,7998. Por lo tanto,
+el modelo logró clasificar correctamente
+aproximadamente el 80\% de las imágenes
+del conjunto de control.
+
+Al comparar estos resultados con los obtenidos
+durante la validación cruzada, observamos que
+el F1 macro fue ligeramente superior en held-out
+(0,7998 frente a 0,7816). Esta diferencia puede
+estar relacionada con las particularidades de
+las particiones utilizadas y con el entrenamiento
+del modelo final sobre todo el conjunto de desarrollo.
+
+Como podemos observar en la Figura
+\ref{fig:matriz_confusion_multiclase}, la matriz
+de confusión presenta una diagonal principal
+predominante, lo que indica que la mayoría
+de las imágenes fueron clasificadas correctamente.
+Sin embargo, el desempeño no fue uniforme
+entre las diez categorías.
+
+En particular, las estrellas (clase 6)
+presentaron el menor F1-score (0,74),
+mientras que las casas (clase 9)
+obtuvieron el menor recall (0,71),
+lo que indica que una proporción importante
+de estas imágenes fue clasificada
+incorrectamente.
+
+Por otra parte, los triángulos (clase 4)
+alcanzaron el mayor recall (0,92), pero
+presentaron una precision de 0,76.
+Esto indica que el modelo logró identificar
+la mayoría de las imágenes de esta categoría,
+aunque también clasificó incorrectamente
+como triángulos dibujos de otras clases.
+
+Estas diferencias muestran que,
+aunque el desempeño general del modelo
+fue cercano al 80\%, existen variaciones
+importantes en su capacidad para
+reconocer las distintas categorías.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]
+    {graficos/matriz_confusion_multiclase.png}
+    \caption{Matriz de confusión del árbol de decisión
+    seleccionado, evaluado sobre el conjunto held-out.
+    Las filas representan las clases reales y las
+    columnas las clases predichas.}
+    \label{fig:matriz_confusion_multiclase}
+\end{figure}
+
+
+\subsection{Predicciones y estimación del desempeño}
+
+Finalmente, utilizamos el árbol de decisión
+seleccionado para predecir las clases de las
+6.030 imágenes del conjunto de evaluación
+proporcionado por la cátedra. Generamos un
+archivo CSV que contiene los identificadores
+originales de cada imagen y sus respectivas
+clases predichas.
+
+Como estimación del desempeño sobre este
+conjunto, utilizamos la accuracy obtenida
+sobre held-out, cuyo valor fue de 0,8003.
+Elegimos esta medida porque el conjunto de
+control se mantuvo apartado durante el
+entrenamiento y la selección de hiperparámetros,
+por lo que permite evaluar el modelo sobre
+imágenes que no habían sido utilizadas
+previamente.
+
+Consideramos que esta estimación resulta
+razonable porque ambos conjuntos provienen
+del mismo problema de clasificación y
+presentan las mismas características en
+cuanto a la representación de las imágenes.
+Sin embargo, el desempeño real podría
+presentar pequeñas diferencias debido a
+las particularidades de las imágenes
+incluidas en el conjunto de evaluación.
+
+
+Para comparar nuestra estimación con los resultados
+obtenidos durante la selección del modelo, calculamos
+también la accuracy promedio de las cinco particiones
+de validación cruzada, que fue de 0,7820. Este valor
+resultó ligeramente inferior al obtenido sobre
+held-out (0,8003).
+
+Consideramos que esta diferencia podría estar
+relacionada con que, durante la validación cruzada,
+los modelos se entrenaron utilizando una menor
+cantidad de imágenes que el árbol definitivo,
+aunque también pueden influir las particularidades
+de las distintas particiones.
+
+Por lo tanto, esperamos que la accuracy real
+sobre el conjunto de evaluación de la cátedra
+sea cercana a 0,8003 y, en consecuencia,
+ligeramente superior a la obtenida durante
+la validación cruzada. Sin embargo, reconocemos
+que se trata de una estimación y que el desempeño
+final puede variar según las características
+de las imágenes evaluadas.
+
 
 % ==================================================
 \section{Conclusiones}
 % ==================================================
 
-A partir de los experimentos realizados, se concluye que
-[resumir los principales hallazgos del trabajo].
+A lo largo del trabajo, analizamos distintas
+características del conjunto de imágenes y evaluamos
+cómo la selección de atributos y de hiperparámetros
+influye en el desempeño de los modelos de clasificación.
 
-En particular, el modelo [nombre del modelo] obtuvo
-[resultado relevante], mientras que [otro modelo o
-configuración] presentó [resultado]. Estas diferencias
-pueden explicarse por [justificación basada en los
-experimentos y las características de los datos].
+El análisis exploratorio nos permitió identificar
+diferencias en la variabilidad de los píxeles y en
+las representaciones de las distintas categorías.
+Sin embargo, también observamos que estas medidas
+no resultan suficientes para determinar por sí solas
+la utilidad de un atributo o la facilidad con la
+que pueden distinguirse dos clases.
 
-Respecto del inciso 3.e, la accuracy estimada fue de
-[valor o porcentaje]. Esta estimación se obtuvo mediante
-[método utilizado para estimarla], utilizando
-[describir los datos o particiones empleados].
+En los experimentos de clasificación binaria mediante
+KNN, encontramos que la selección y la cantidad de
+atributos tuvieron una influencia importante sobre
+los resultados. Aunque algunos conjuntos de tres
+píxeles permitieron distinguir cuadrados de casas
+con un desempeño razonable, incorporar más atributos
+produjo mejoras considerables. No obstante, utilizar
+los 784 píxeles disponibles resultó menos efectivo
+que emplear una selección de 200 atributos.
+La mejor configuración evaluada alcanzó un F1-score
+de 0,975, utilizando 200 píxeles y un único vecino.
 
-La estimación resulta razonable porque [justificar a partir
-del procedimiento de evaluación, los resultados obtenidos
-y las limitaciones que correspondan]. Sin embargo, debe
-tenerse en cuenta que [mencionar posibles limitaciones,
-incertidumbre o diferencias entre los datos utilizados
-para evaluar y los datos finales].
+Por otra parte, en la clasificación multiclase
+mediante árboles de decisión, seleccionamos los
+hiperparámetros utilizando validación cruzada sobre
+el conjunto de desarrollo. El modelo elegido obtuvo
+una accuracy de 0,8003 sobre el conjunto de control,
+que se había mantenido apartado durante el
+entrenamiento y la selección.
 
-En síntesis, los resultados permiten afirmar que
-[conclusión final directamente respaldada por los
-experimentos realizados].
+Este resultado nos permitió estimar el desempeño
+esperado sobre las imágenes de evaluación de la
+cátedra sin utilizar información de sus etiquetas.
+Consideramos que la separación entre desarrollo y
+control fue fundamental para obtener una estimación
+más independiente de la capacidad de generalización
+del modelo, aunque reconocemos que el desempeño
+real puede presentar diferencias.
+
+En conjunto, los experimentos muestran la importancia
+de evaluar empíricamente las decisiones tomadas
+durante la construcción de un clasificador.
+Los resultados también destacan la necesidad de
+distinguir entre el desempeño observado al comparar
+configuraciones y aquel obtenido sobre datos que
+no participaron de su selección.
+
 
 % ==================================================
 \section{Bibliografía}
@@ -424,16 +828,20 @@ experimentos realizados].
 
 \begin{thebibliography}{9}
 
-\bibitem{paper}
-[Autores del paper].
-\textit{[Título completo del paper]}.
-[Revista, congreso o publicación, año].
-[DOI o URL, si corresponde].
+\bibitem{ha2017}
+Ha, D. y Eck, D. (2017).
+\textit{A Neural Representation of Sketch Drawings}.
+arXiv preprint arXiv:1704.03477.
+\url{https://arxiv.org/abs/1704.03477}
 
-% Agregar las demás fuentes consultadas.
-% Ejemplo de documentación:
-%
-% \bibitem{documentacion}
+\bibitem{quickdraw}
+Google Creative Lab (2017).
+\textit{The Quick, Draw! Dataset}.
+GitHub.
+\url{https://github.com/googlecreativelab/quickdraw-dataset}
+
+% estaba comentado ni idea si va o no
+% \bibitem{sklearn}
 % Scikit-learn.
 % \textit{Documentación oficial}.
 % \url{https://scikit-learn.org/stable/}
@@ -441,5 +849,3 @@ experimentos realizados].
 \end{thebibliography}
 
 \end{document}
-
-

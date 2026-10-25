@@ -18,7 +18,7 @@ import random
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
+from sklearn.model_selection import train_test_split, cross_validate, cross_val_score, StratifiedKFold
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_score, recall_score, f1_score
 from sklearn.tree import DecisionTreeClassifier
 
@@ -387,6 +387,7 @@ print(mejor_configuracion)
 
 #%% d: Entrenamos el mejor modelo y evaluamos en held-out
 
+
 # Creamos un árbol con los mejores hiperparámetros encontrados en c
 mejor_arbol = DecisionTreeClassifier(
     criterion=mejor_configuracion["criterio"],
@@ -401,7 +402,25 @@ mejor_arbol.fit(X_dev, y_dev)
 # Predecimos las clases de held-out
 y_pred = mejor_arbol.predict(X_held)
 
+# Evaluamos la mejor configuración con todas las métricas
+metricas = ["accuracy", "precision_macro", "recall_macro", "f1_macro"]
+
+resultados_cv = cross_validate(
+    mejor_arbol,
+    X_dev,
+    y_dev,
+    cv=cv,
+    scoring=metricas
+)
+
 # Calculamos las métricas de evaluación
+
+print("\nMétricas promedio de validación cruzada:")
+
+for metrica in metricas:
+    promedio = resultados_cv[f"test_{metrica}"].mean()
+    print(f"{metrica}: {promedio:.4f}")
+
 print("\nResultados sobre held-out:")
 print("Accuracy:", accuracy_score(y_held, y_pred))
 print("Precision macro:", precision_score(
@@ -413,6 +432,7 @@ print("Recall macro:", recall_score(
 print("F1 macro:", f1_score(
     y_held, y_pred, average="macro", zero_division=0
 ))
+
 
 # Informe detallado por clase
 print("\nReporte de clasificación:")
