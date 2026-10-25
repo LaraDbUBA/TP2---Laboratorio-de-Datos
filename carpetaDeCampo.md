@@ -111,3 +111,127 @@ El efecto de k fue menor: con pocos atributos k=1 rindió peor y el F1 se estabi
 
 ---
 Cambie un poco el codigo de mile que estaba super rebuscado y super claudeado 
+
+24-10
+Guarde las imagenes que faltaban
+
+Resultados para no tener que hacer toooodo de vuelta
+Criterio=gini | Profundidad=1 | Minimo hoja=1 | F1 macro medio=0.061 | Desvío=0.002
+Criterio=gini | Profundidad=1 | Minimo hoja=5 | F1 macro medio=0.061 | Desvío=0.002
+Criterio=gini | Profundidad=2 | Minimo hoja=1 | F1 macro medio=0.175 | Desvío=0.006
+Criterio=gini | Profundidad=2 | Minimo hoja=5 | F1 macro medio=0.175 | Desvío=0.006
+Criterio=gini | Profundidad=3 | Minimo hoja=1 | F1 macro medio=0.396 | Desvío=0.021
+Criterio=gini | Profundidad=3 | Minimo hoja=5 | F1 macro medio=0.396 | Desvío=0.021
+Criterio=gini | Profundidad=4 | Minimo hoja=1 | F1 macro medio=0.545 | Desvío=0.019
+Criterio=gini | Profundidad=4 | Minimo hoja=5 | F1 macro medio=0.545 | Desvío=0.019
+Criterio=gini | Profundidad=5 | Minimo hoja=1 | F1 macro medio=0.632 | Desvío=0.005
+Criterio=gini | Profundidad=5 | Minimo hoja=5 | F1 macro medio=0.632 | Desvío=0.005
+Criterio=gini | Profundidad=6 | Minimo hoja=1 | F1 macro medio=0.686 | Desvío=0.010
+Criterio=gini | Profundidad=6 | Minimo hoja=5 | F1 macro medio=0.686 | Desvío=0.010
+Criterio=gini | Profundidad=7 | Minimo hoja=1 | F1 macro medio=0.729 | Desvío=0.010
+Criterio=gini | Profundidad=7 | Minimo hoja=5 | F1 macro medio=0.729 | Desvío=0.010
+Criterio=gini | Profundidad=8 | Minimo hoja=1 | F1 macro medio=0.755 | Desvío=0.009
+Criterio=gini | Profundidad=8 | Minimo hoja=5 | F1 macro medio=0.755 | Desvío=0.010
+Criterio=gini | Profundidad=9 | Minimo hoja=1 | F1 macro medio=0.770 | Desvío=0.009
+Criterio=gini | Profundidad=9 | Minimo hoja=5 | F1 macro medio=0.771 | Desvío=0.011
+Criterio=gini | Profundidad=10 | Minimo hoja=1 | F1 macro medio=0.778 | Desvío=0.010
+Criterio=gini | Profundidad=10 | Minimo hoja=5 | F1 macro medio=0.780 | Desvío=0.012
+Criterio=entropy | Profundidad=1 | Minimo hoja=1 | F1 macro medio=0.063 | Desvío=0.000
+Criterio=entropy | Profundidad=1 | Minimo hoja=5 | F1 macro medio=0.063 | Desvío=0.000
+Criterio=entropy | Profundidad=2 | Minimo hoja=1 | F1 macro medio=0.177 | Desvío=0.003
+Criterio=entropy | Profundidad=2 | Minimo hoja=5 | F1 macro medio=0.177 | Desvío=0.003
+Criterio=entropy | Profundidad=3 | Minimo hoja=1 | F1 macro medio=0.389 | Desvío=0.014
+Criterio=entropy | Profundidad=3 | Minimo hoja=5 | F1 macro medio=0.389 | Desvío=0.014
+Criterio=entropy | Profundidad=4 | Minimo hoja=1 | F1 macro medio=0.556 | Desvío=0.009
+Criterio=entropy | Profundidad=4 | Minimo hoja=5 | F1 macro medio=0.556 | Desvío=0.009
+Criterio=entropy | Profundidad=5 | Minimo hoja=1 | F1 macro medio=0.628 | Desvío=0.006
+Criterio=entropy | Profundidad=5 | Minimo hoja=5 | F1 macro medio=0.628 | Desvío=0.006
+Criterio=entropy | Profundidad=6 | Minimo hoja=1 | F1 macro medio=0.696 | Desvío=0.006
+Criterio=entropy | Profundidad=6 | Minimo hoja=5 | F1 macro medio=0.696 | Desvío=0.006
+Criterio=entropy | Profundidad=7 | Minimo hoja=1 | F1 macro medio=0.735 | Desvío=0.004
+Criterio=entropy | Profundidad=7 | Minimo hoja=5 | F1 macro medio=0.735 | Desvío=0.004
+Criterio=entropy | Profundidad=8 | Minimo hoja=1 | F1 macro medio=0.761 | Desvío=0.003
+Criterio=entropy | Profundidad=8 | Minimo hoja=5 | F1 macro medio=0.761 | Desvío=0.002
+Criterio=entropy | Profundidad=9 | Minimo hoja=1 | F1 macro medio=0.777 | Desvío=0.003
+Criterio=entropy | Profundidad=9 | Minimo hoja=5 | F1 macro medio=0.778 | Desvío=0.002
+Criterio=entropy | Profundidad=10 | Minimo hoja=1 | F1 macro medio=0.781 | Desvío=0.005
+Criterio=entropy | Profundidad=10 | Minimo hoja=5 | F1 macro medio=0.782 | Desvío=0.005
+
+Las 10 mejores configuraciones:
+criterio  profundidad  min_samples_leaf  F1_macro_medio   desvio
+ entropy           10                 5        0.781584 0.004804
+ entropy           10                 1        0.781018 0.004933
+    gini           10                 5        0.779712 0.012003
+ entropy            9                 5        0.778407 0.001872
+    gini           10                 1        0.778327 0.009897
+ entropy            9                 1        0.777363 0.003209
+    gini            9                 5        0.770667 0.010710
+    gini            9                 1        0.769518 0.008648
+ entropy            8                 5        0.761132 0.002478
+ entropy            8                 1        0.760791 0.002891
+
+Mejor configuración:
+criterio             entropy
+profundidad               10
+min_samples_leaf           5
+F1_macro_medio      0.781584
+desvio              0.004804
+
+Resultados sobre held-out:
+Accuracy: 0.8003333333333333
+Precision macro: 0.8012729624693016
+Recall macro: 0.8004898502508659
+F1 macro: 0.7997572272162713
+
+Reporte de clasificación:
+              precision    recall  f1-score   support
+
+           0       0.86      0.87      0.86       608
+           1       0.84      0.84      0.84       583
+           2       0.84      0.82      0.83       617
+           3       0.77      0.74      0.75       592
+           4       0.76      0.92      0.83       602
+           5       0.83      0.83      0.83       574
+           6       0.75      0.72      0.74       624
+           7       0.77      0.76      0.77       598
+           8       0.78      0.79      0.79       613
+           9       0.82      0.71      0.76       589
+
+    accuracy                           0.80      6000
+   macro avg       0.80      0.80      0.80      6000
+weighted avg       0.80      0.80      0.80      6000
+
+Conclusiones del 3
+Para seleccionar el modelo, realizamos una validación cruzada estratificada de 5 particiones 
+sobre el conjunto de desarrollo. Evaluamos árboles de decisión con los criterios de división 
+gini y entropy, profundidades entre 1 y 10 y valores de min_samples_leaf de 1 y 5. 
+Utilizamos el F1 macro como métrica de selección, ya que otorga la misma importancia a cada 
+una de las diez clases.
+
+Los resultados mostraron que el F1 macro medio aumentó a medida que creció la profundidad del 
+árbol, pasando de aproximadamente 0,06 con profundidad 1 a 0,78 con profundidad 10. 
+Esto sugiere que los árboles poco profundos no tienen suficiente capacidad para distinguir 
+las clases, mientras que los más profundos logran capturar mejor las diferencias entre las 
+imágenes.
+
+La mejor configuración fue criterion='entropy', max_depth=10 y min_samples_leaf=5, con un F1 
+macro medio de 0,7816 y un desvío estándar de 0,0048 en la validación cruzada.
+
+Luego entrenamos el modelo seleccionado con todo el conjunto de desarrollo y lo evaluamos 
+sobre el conjunto held-out, que no había sido utilizado para entrenar el modelo ni seleccionar 
+sus hiperparámetros. Obtuvimos un accuracy de 0,8003 y un F1 macro de 0,7998, con valores de 
+precisión y recall macro cercanos a 0,80. Esto indica que el modelo clasificó correctamente 
+aproximadamente el 80 % de las 6000 imágenes del conjunto de evaluación final.
+
+Al analizar las métricas por clase, observamos que la clase 0 presentó el mejor F1-score (0,86),
+mientras que la clase 6 obtuvo el menor (0,74). También se destaca la clase 4, cuyo recall fue
+de 0,92, aunque su precisión fue de 0,76: el modelo identificó correctamente una proporción 
+alta de las imágenes de esa clase, pero también asignó esa etiqueta a algunas imágenes que 
+pertenecían a otras clases. En cambio, para la clase 9 el recall fue de 0,71, lo que indica 
+que el modelo no logró reconocer cerca del 29 % de las imágenes que realmente pertenecían a ella.
+
+Finalmente, el F1 macro obtenido sobre held-out fue ligeramente superior al promedio de 
+validación cruzada. Ambos resultados son cercanos y sugieren un rendimiento consistente en 
+datos no utilizados durante el entrenamiento y la selección del modelo. De todos modos, el 
+desempeño varía entre clases, por lo que la matriz de confusión permite identificar cuáles 
+presentan mayores dificultades de clasificación.

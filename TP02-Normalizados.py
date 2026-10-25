@@ -17,7 +17,7 @@ Participantes: Ayala Ignacio, Della Bonzana Lara, Posse Lucila, Ventroni Milena
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
 #from sklearn.preprocessing import StandardScaler
 #from sklearn.pipeline import make_pipeline
 from sklearn.neighbors import KNeighborsClassifier
@@ -29,7 +29,7 @@ from sklearn.metrics import (
     recall_score, 
     f1_score
 )
-
+from sklearn.tree import DecisionTreeClassifier
 import random
 from pathlib import Path
 
@@ -130,6 +130,7 @@ def analisis_imagenes():
     plt.title("Promedio de píxeles seleccionados por clase")
     plt.legend(title="Píxel")
     plt.tight_layout()
+    plt.savefig("graficos/promedio_pixeles_por_clase.png",dpi=300, bbox_inches="tight")
     plt.show()
 
 def mostrarImagenes(df, label, cantidad=6):
@@ -147,6 +148,7 @@ def mostrarImagenes(df, label, cantidad=6):
         ax.axis("off")
 
     fig.suptitle(f"Ejemplos de la clase {label}")
+    fig.savefig(f"graficos/ejemplos_de_clase_{label}.png",dpi=300, bbox_inches="tight")
     plt.show()
 
 def distanciaEuclidea(dibujo1, dibujo2):
@@ -234,7 +236,7 @@ print("Distancia media cuadrados-casas:", np.mean(compararClases(imagenes, 2, 9)
 print("Distancia media cuadrados-estrellas:", np.mean(compararClases(imagenes, 2, 6)))
 print("Distancia media casas-estrellas:", np.mean(compararClases(imagenes, 9, 6)))
 mostrarImagenes(imagenes, 3)
-_ =analizarClase(imagenes, 3)
+analizarClase(imagenes, 3)
 
 #%% PREGUNTAS DEL 1(más graficos para entender)
 # 1-A ¿Qué atributos(pixeles) sirven y cuales no?
@@ -510,6 +512,7 @@ for k in [1,5,25]:
 axs[1].set(xlabel="numero de atributos", ylabel = "f1",title = "f1 vs numero de atributos")
 axs[1].legend()
 plt.tight_layout()
+fig.savefig("graficos/comparacion_f1_atributos.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 
@@ -554,78 +557,184 @@ para estimar el desempeño, datos que el modelo ya haya visto durante el
 entrenamiento o la selección de hiperparámetros
 """
 
-#%%
 
+#%% Punto 3 - Clasificación multiclase
+
+# Usamos todas las imágenes y todas las clases.
+# No reutilizamos X e y del punto 2, porque contienen solo las clases 2 y 9.
+X_multiclase = imagenes.drop(columns="label")
+y_multiclase = imagenes["label"]
+
+print("Clases:", sorted(y_multiclase.unique()))
+print("Cantidad de clases:", y_multiclase.nunique())
+print("Cantidad total de imágenes:", len(imagenes))
+
+# a. Separamos desarrollo y control, conservando la proporción de las clases.
 X_dev, X_held, y_dev, y_held = train_test_split(
-    X, y,
+    X_multiclase,
+    y_multiclase,
     test_size=0.20,
-    random_state=42,
-    stratify=y
+    random_state=semilla,
+    stratify=y_multiclase
 )
 
 print("Imágenes de desarrollo:", X_dev.shape[0])
 print("Imágenes de control:", X_held.shape[0])
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import GridSearchCV, StratifiedKFold
 
-validacion = StratifiedKFold(
+#%% b y c: Elegimos la métrica y comparamos árboles de decisión
+
+# Usamos F1 macro para comparar los modelos.
+# Calcula el F1 de cada clase y luego promedia todos los resultados
+# dando la misma importancia a cada clase.
+
+cv = StratifiedKFold(
     n_splits=5,
     shuffle=True,
-    random_state=42
+    random_state=semilla
 )
 
-arbol = DecisionTreeClassifier(random_state=42)
+resultados = []
 
-parametros = {
-    "max_depth": list(range(1, 11)),
-    "criterion": ["gini", "entropy"],
-    "min_samples_leaf": [1, 5, 10]
-}
+for criterio in ["gini", "entropy"]:
+    for profundidad in range(1, 11):
+        for minimo_hoja in [1, 5]:
 
-busqueda = GridSearchCV(
-    arbol,
-    parametros,
-    cv=validacion,
-    scoring="f1_macro",
-    n_jobs=-1
+            modelo = DecisionTreeClassifier(
+                criterion=criterio,
+                max_depth=profundidad,
+                min_samples_leaf=minimo_hoja,
+                random_state=semilla
+            )
+
+            scores = cross_val_score(
+                modelo,
+                X_dev,
+                y_dev,
+                cv=cv,
+                scoring="f1_macro"
+            )
+
+            resultados.append({
+                "criterio": criterio,
+                "profundidad": profundidad,
+                "min_samples_leaf": minimo_hoja,
+                "F1_macro_medio": scores.mean(),
+                "desvio": scores.std()
+            })
+
+            print(
+                f"Criterio={criterio} | "
+                f"Profundidad={profundidad} | "
+                f"Minimo hoja={minimo_hoja} | "
+                f"F1 macro medio={scores.mean():.3f} | "
+                f"Desvío={scores.std():.3f}"
+            )
+
+# Ordenamos las configuraciones según su F1 macro medio
+resultados = pd.DataFrame(resultados)
+resultados = resultados.sort_values(
+    "F1_macro_medio",
+    ascending=False
+).reset_index(drop=True)
+
+print("\nLas 10 mejores configuraciones:")
+print(resultados.head(10).to_string(index=False))
+
+# Elegimos la configuración con mejor resultado promedio
+mejor_configuracion = resultados.iloc[0]
+
+print("\nMejor configuración:")
+print(mejor_configuracion)
+
+
+
+#%% d: Entrenamos el mejor modelo y evaluamos en held-out
+
+# Creamos un árbol con los mejores hiperparámetros encontrados en c
+mejor_arbol = DecisionTreeClassifier(
+    criterion=mejor_configuracion["criterio"],
+    max_depth=int(mejor_configuracion["profundidad"]),
+    min_samples_leaf=int(mejor_configuracion["min_samples_leaf"]),
+    random_state=semilla
 )
 
-busqueda.fit(X_dev, y_dev)
+# Entrenamos el modelo con todos los datos de desarrollo
+mejor_arbol.fit(X_dev, y_dev)
 
-print("Mejores parámetros:", busqueda.best_params_)
-print("Mejor F1 macro promedio:", busqueda.best_score_)
-# Mostramos las 10 configuraciones con mejor resultado
-resultados_c = pd.DataFrame(busqueda.cv_results_)
-resultados_c = resultados_c.sort_values(
-    "rank_test_score"
-)
-
-print(resultados_c[
-    ["params", "mean_test_score", "std_test_score"]
-].head(10))
-#%% Evaluamos el modelo elegido
-
-mejor_arbol = busqueda.best_estimator_
-
+# Predecimos las clases de held-out
 y_pred = mejor_arbol.predict(X_held)
 
+# Calculamos las métricas de evaluación
+print("\nResultados sobre held-out:")
 print("Accuracy:", accuracy_score(y_held, y_pred))
-print("F1 macro:", f1_score(y_held, y_pred, average="macro"))
+print("Precision macro:", precision_score(
+    y_held, y_pred, average="macro", zero_division=0
+))
+print("Recall macro:", recall_score(
+    y_held, y_pred, average="macro", zero_division=0
+))
+print("F1 macro:", f1_score(
+    y_held, y_pred, average="macro", zero_division=0
+))
 
-print(classification_report(y_held, y_pred))
+# Informe detallado por clase
+print("\nReporte de clasificación:")
+print(classification_report(y_held, y_pred, zero_division=0))
 
-matriz = confusion_matrix(y_held, y_pred)
-print(matriz)
+# Matriz de confusión
+etiquetas = sorted(y_multiclase.unique())
+matriz = confusion_matrix(y_held, y_pred, labels=etiquetas)
 
-plt.figure(figsize=(9, 7))
-plt.imshow(matriz)
-plt.colorbar()
-plt.xlabel("Clase predicha")
-plt.ylabel("Clase real")
-plt.title("Matriz de confusión - held-out")
-plt.xticks(range(10))
-plt.yticks(range(10))
+fig, ax = plt.subplots(figsize=(9, 7))
+im = ax.imshow(matriz, cmap="Blues")
+
+fig.colorbar(im, ax=ax)
+ax.set_xlabel("Clase predicha")
+ax.set_ylabel("Clase real")
+ax.set_title("Matriz de confusión - held-out")
+
+ax.set_xticks(range(len(etiquetas)), etiquetas)
+ax.set_yticks(range(len(etiquetas)), etiquetas)
+
 plt.tight_layout()
 plt.show()
 
-#%%Predecimos las clases de evaluación
+plt.savefig("graficos/matriz_confusion_multiclase.png",dpi=300,bbox_inches="tight")
+
+
+#%% e: Predecimos las clases del conjunto de evaluación
+
+# Guardamos los identificadores originales antes de quitar columnas
+ids = evaluacion["id"].copy()
+
+# Preparamos los atributos que usa el modelo
+X_evaluacion = evaluacion.drop(columns=["id", "label"], errors="ignore")
+
+# Conservamos las mismas columnas y el mismo orden que en dev
+X_evaluacion = X_evaluacion[X_dev.columns]
+
+# Predecimos las clases
+predicciones = mejor_arbol.predict(X_evaluacion)
+
+# Armamos el archivo con las dos columnas exigidas
+df_predicciones = pd.DataFrame({
+    "id": ids,
+    "label": predicciones
+})
+
+performance = 0.8003
+nombre_grupo = "Normalizados"
+
+nombre_archivo = (
+    f"TP-02-{performance:.4f}-{nombre_grupo}.csv"
+)
+
+df_predicciones.to_csv(nombre_archivo, index=False)
+
+print("Archivo generado:", nombre_archivo)
+print("Cantidad de filas:", len(df_predicciones))
+print("\nPrimeras filas:")
+print(df_predicciones.head())
+
+print("\nColumnas:", list(df_predicciones.columns))
+
