@@ -560,7 +560,7 @@ aunque no podemos determinar cómo se comportaría
 el modelo con profundidades superiores.
 
 Por otra parte, las diferencias entre las mejores
-configuraciones fueron reducidas. En particular,
+configuraciones halladas fueron reducidas. En particular,
 el segundo modelo, también con criterio
 \texttt{entropy} y profundidad 10, pero con una
 muestra mínima por hoja, obtuvo un F1 macro
@@ -604,7 +604,7 @@ Obtuvimos una accuracy de 0,8003, una precision
 macro de 0,8013, un recall macro de 0,8005
 y un F1 macro de 0,7998. Por lo tanto,
 el modelo logró clasificar correctamente
-aproximadamente el 80\% de las imágenes
+alrededor del 80\% de las imágenes
 del conjunto de control.
 
 Al comparar estos resultados con los obtenidos
@@ -642,7 +642,7 @@ como triángulos dibujos de otras clases.
 Estas diferencias muestran que,
 aunque el desempeño general del modelo
 fue cercano al 80\%, existen variaciones
-importantes en su capacidad para
+considerables en su capacidad para
 reconocer las distintas categorías.
 
 
@@ -663,7 +663,7 @@ reconocer las distintas categorías.
 Finalmente, utilizamos el árbol de decisión
 seleccionado para predecir las clases de las
 6.030 imágenes del conjunto de evaluación
-proporcionado por la cátedra. Generamos un
+proporcionado. Generamos un
 archivo CSV que contiene los identificadores
 originales de cada imagen y sus respectivas
 clases predichas.
@@ -704,7 +704,7 @@ aunque también pueden influir las particularidades
 de las distintas particiones.
 
 Por lo tanto, esperamos que la accuracy real
-sobre el conjunto de evaluación de la cátedra
+sobre el conjunto de evaluación
 sea cercana a 0,8003 y, en consecuencia,
 ligeramente superior a la obtenida durante
 la validación cruzada. Sin embargo, reconocemos
@@ -751,21 +751,12 @@ que se había mantenido apartado durante el
 entrenamiento y la selección.
 
 Este resultado nos permitió estimar el desempeño
-esperado sobre las imágenes de evaluación de la
-cátedra sin utilizar información de sus etiquetas.
+esperado sobre las imágenes de evaluación sin utilizar información de sus etiquetas.
 Consideramos que la separación entre desarrollo y
 control fue fundamental para obtener una estimación
 más independiente de la capacidad de generalización
-del modelo, aunque reconocemos que el desempeño
+del modelo, aunque que el desempeño
 real puede presentar diferencias.
-
-En conjunto, los experimentos muestran la importancia
-de evaluar empíricamente las decisiones tomadas
-durante la construcción de un clasificador.
-Los resultados también destacan la necesidad de
-distinguir entre el desempeño observado al comparar
-configuraciones y aquel obtenido sobre datos que
-no participaron de su selección.
 
 
 % ==================================================
