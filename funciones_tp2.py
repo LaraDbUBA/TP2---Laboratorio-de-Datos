@@ -50,14 +50,15 @@ def analisis_imagenes(imagenes, carpeta_graficos="graficos"):
     plt.show()
 
 
-def mostrarImagenes(df, label, cantidad=6, semilla=42, carpeta_graficos="graficos"):
+def mostrarImagenes(df, label, nombre, cantidad=6, semilla=42, carpeta_graficos="graficos"):
     """Muestra una muestra reproducible de dibujos de una clase."""
     ejemplos = df[df["label"] == label].sample(n=cantidad, random_state=semilla)
-    fig, axes = plt.subplots(1, cantidad, figsize=(12, 3), squeeze=False)
+    fig, axes = plt.subplots(1, cantidad, figsize=(12, 2.4), squeeze=False)
     for ax, (_, fila) in zip(axes.flat, ejemplos.iterrows()):
         ax.imshow(fila.drop("label").to_numpy().reshape(28, 28), cmap="gray")
         ax.axis("off")
-    fig.suptitle(f"Ejemplos de la clase {label}")
+        fig.suptitle(f"{nombre} (clase {label})", fontsize=36, fontweight="bold")
+    fig.tight_layout()
     fig.savefig(Path(carpeta_graficos) / f"ejemplos_de_clase_{label}.png", dpi=300, bbox_inches="tight")
     plt.show()
 

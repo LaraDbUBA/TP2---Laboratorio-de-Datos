@@ -18,6 +18,7 @@
 \usepackage{amsmath}
 \usepackage{hyperref}
 \usepackage{caption}
+\captionsetup{labelfont=bf, font = small}
 
 % Carátula gráfica
 \usepackage[graf,intVert]{caratula}
@@ -97,10 +98,25 @@ Como podemos observar en la Figura
 \ref{fig:variabilidad_pixeles}, la variabilidad no se
 distribuye uniformemente entre los atributos. Las mayores
 diferencias entre los promedios de clase se concentran
-principalmente cerca del borde superior y del lateral
-izquierdo de las imágenes, regiones donde también
+principalmente cerca del borde superior y de los laterales 
+de las imágenes (por ejemplo, los píxeles 46 a 48, en el borde superior, 
+y 166, 194 y 222, en el derecho), regiones donde también
 encontramos una elevada variabilidad total. En cambio,
 las esquinas presentan valores reducidos en ambos gráficos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.46\textwidth]
+    {graficos/varianza_entre_clases.png}
+    \hfill
+    \includegraphics[width=0.46\textwidth]
+    {graficos/desvio_total.png}
+    \caption{Variabilidad de los atributos.
+    Izquierda: varianza de los promedios por clase.
+    Derecha: desvío estándar de cada píxel
+    sobre el conjunto completo.}
+    \label{fig:variabilidad_pixeles}
+\end{figure}
 
 También comprobamos que ninguno de los 784 píxeles es
 estrictamente constante y que solamente ocho presentan
@@ -117,19 +133,6 @@ Por lo tanto, aunque estos resultados nos permiten identificar atributos
 potencialmente relevantes, sería necesario evaluar el desempeño de los 
 modelos con distintas selecciones de píxeles para determinar su utilidad.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.46\textwidth]
-    {graficos/varianza_entre_clases.png}
-    \hfill
-    \includegraphics[width=0.46\textwidth]
-    {graficos/desvio_total.png}
-    \caption{Variabilidad de los atributos.
-    Izquierda: varianza de los promedios por clase.
-    Derecha: desvío estándar de cada píxel
-    sobre el conjunto completo.}
-    \label{fig:variabilidad_pixeles}
-\end{figure}
 
 Para complementar este análisis, comparamos las
 distribuciones de intensidad de dos atributos:
@@ -160,13 +163,14 @@ irrelevante al combinarlo con otros atributos.
     \includegraphics[width=0.85\textwidth]
     {graficos/comparacion_pixeles.png}
     \caption{Distribución de las intensidades de los
-    píxeles 194 y 0 según la clase de la imagen.}
+    píxeles 194 y 0 según la clase de la imagen. Los ejes verticales tienen 
+escalas distintas: el píxel 0 no supera el valor 33.}
     \label{fig:comparacion_pixeles}
 \end{figure}
 
-Luego, seleccionamos aleatoriamente ejemplos de las cuatro clases 
-estudiadas en los siguientes apartados: cuadrados, casas, estrellas
-y peces.
+Luego, seleccionamos aleatoriamente ejemplos de las cuatro clases
+estudiadas en los siguientes apartados (Figura~\ref{fig:ejemplos_clases}):
+cuadrados, casas, estrellas y peces.
 
 Observar estos dibujos permite apreciar
 las diferentes formas en que puede representarse una
@@ -194,15 +198,16 @@ variabilidad y distancia utilizadas posteriormente.
 
     \caption{Ejemplos de imágenes seleccionadas
     aleatoriamente de cuatro clases del conjunto
-    de datos. Arriba: cuadrados (2) y casas (9).
-    Abajo: estrellas (6) y peces (3).}
+    de datos}
     \label{fig:ejemplos_clases}
 \end{figure}
 
+\newpage
+
 A continuación, analizamos las similitudes entre
-imágenes de cuadrados (clase 2), estrellas (clase 6)
-y casas (clase 9). Para ello, seleccionamos aleatoriamente
-100 imágenes de cada categoría y calculamos las distancias
+imágenes de cuadrados, estrellas y casas. Para ello, 
+seleccionamos aleatoriamente 100 imágenes de 
+cada categoría y calculamos las distancias
 euclídeas tanto entre imágenes de clases diferentes como
 entre imágenes de una misma clase.
 
@@ -245,8 +250,7 @@ difieren en su ubicación, tamaño u orientación.
     \includegraphics[width=0.85\textwidth]
     {graficos/distancias_clases.png}
     \caption{Distribución de las distancias euclídeas
-    entre imágenes de una misma clase y de
-    clases diferentes.}
+    entre imágenes de clases diferentes y de una misma clase.}
     \label{fig:distancias_clases}
 \end{figure}
 
@@ -284,9 +288,7 @@ mediana cercana a 2900, ligeramente inferior a la
 distancia mediana entre peces y cuadrados que es cercana
 a 3120. Sin embargo, las distribuciones se solapan
 considerablemente y las distancias internas de peces
-y cuadrados son similares.
-
-Por lo tanto, encontramos variaciones apreciables
+y cuadrados son similares. Por lo tanto, encontramos variaciones apreciables
 entre las representaciones de peces, aunque su
 dispersión interna no resulta particularmente elevada
 en comparación con la de los cuadrados. Estas observaciones 
@@ -298,7 +300,7 @@ clasificarse las imágenes de esta categoría.
     \includegraphics[width=0.75\textwidth]
     {graficos/distancias_peces.png}
     \caption{Distribución de las distancias euclídeas
-    dentro de las clases 3 y 2, y entre ambas clases.}
+    dentro de las clases pez y cuadrado, y entre ambas clases.}
     \label{fig:distancias_peces}
 \end{figure}
 
@@ -322,8 +324,7 @@ distintos clasificadores y cómo este cambia según los atributos e hiperparáme
 
 
 Para el primer problema de clasificación, trabajamos
-únicamente con las imágenes correspondientes a cuadrados
-(clase 2) y casas (clase 9), utilizando el algoritmo
+únicamente con las imágenes correspondientes a cuadrados y casas, utilizando el algoritmo
 de los $k$ vecinos más cercanos (KNN).
 
 El subconjunto resultante contiene 6.030 imágenes:
@@ -394,8 +395,10 @@ conjuntos de tres atributos evaluados.
 Estos resultados sugieren que seleccionar los
 píxeles con mayores diferencias entre los promedios
 de clase no garantiza obtener la combinación
-más adecuada para KNN. A su vez, observamos que
-el desempeño puede variar considerablemente
+más adecuada para KNN, probablemente porque los
+primeros píxeles del ranking son vecinos entre sí
+y aportan información redundante. A su vez, observamos 
+que el desempeño puede variar considerablemente
 según los atributos seleccionados, incluso
 cuando se mantiene fija su cantidad.
 
@@ -432,8 +435,8 @@ y el número de vecinos en el desempeño de KNN, evaluamos ocho valores de
 En todos los casos, utilizamos los primeros píxeles del ordenamiento construido 
 anteriormente y mantuvimos la misma división entre entrenamiento y prueba.
 
-Como podemos observar en la Figura
-\ref{fig:comparacion_knn}, al incorporar más atributos encontramos una mejora importante 
+Como podemos observar en la Figura\ref{fig:comparacion_knn}, 
+al incorporar más atributos encontramos una mejora importante 
 en el desempeño, alcanzando valores de F1-score superiores a 0,95 con 50 a 200 píxeles. 
 Sin embargo, para todos los valores de (k) evaluados, los modelos con 200 píxeles obtuvieron 
 mejores resultados que aquellos que utilizaron los 784 disponibles. Esto sugiere que incorporar 
@@ -464,7 +467,17 @@ menores que las observadas al modificar la cantidad de píxeles.
 Entre las 80 configuraciones evaluadas,
 el mayor F1-score fue de 0,975, obtenido
 con $k=1$ y los 200 primeros atributos
-del ordenamiento.
+del ordenamiento. Sin embargo, este valor 
+probablemente sobreestime el desempeño 
+del modelo sobre imágenes nuevas, ya que se eligió 
+como el mejor comparando todas las configuraciones 
+sobre el mismo conjunto de prueba: parte de su ventaja puede 
+deberse a particularidades de esas imágenes. 
+Esto no implica que el modelo sea malo, sino que, 
+con imágenes nuevas, esperaríamos un
+F1-score algo menor.
+
+\newpage
 
 % ==================================================
 \section{Clasificación multiclase mediante árboles de decisión}
@@ -543,35 +556,6 @@ muestras por hoja. Esta configuración alcanzó
 un F1 macro promedio de 0,7816, con un desvío
 estándar de 0,0048 entre las cinco particiones.
 
-Además del F1 macro utilizado para seleccionar
-el modelo, calculamos las restantes métricas
-sobre las cinco particiones de validación cruzada.
-Obtuvimos una accuracy promedio de 0,7820,
-una precision macro de 0,7824 y un recall macro
-de 0,7821. Estos resultados muestran un desempeño
-similar entre las distintas métricas consideradas.
-
-Observamos que las configuraciones con mayor
-desempeño utilizaron una profundidad máxima de 10,
-el valor más alto considerado en el experimento.
-Esto sugiere que permitir una mayor profundidad
-resultó beneficioso dentro del rango evaluado,
-aunque no podemos determinar cómo se comportaría
-el modelo con profundidades superiores.
-
-Por otra parte, las diferencias entre las mejores
-configuraciones halladas fueron reducidas. En particular,
-el segundo modelo, también con criterio
-\texttt{entropy} y profundidad 10, pero con una
-muestra mínima por hoja, obtuvo un F1 macro
-promedio de 0,7810.
-
-Si bien seleccionamos la configuración con mayor
-F1 macro promedio, estos resultados no permiten
-afirmar que su desempeño sea considerablemente
-superior al de otras configuraciones cercanas.
-
-
 \begin{table}[H]
     \centering
     \caption{Mejores configuraciones de árboles
@@ -588,6 +572,38 @@ superior al de otras configuraciones cercanas.
         \bottomrule
     \end{tabular}
 \end{table}
+
+
+
+Además del F1 macro utilizado para seleccionar
+el modelo, calculamos las restantes métricas
+sobre las cinco particiones de validación cruzada.
+Obtuvimos una accuracy promedio de 0,7820,
+una precision macro de 0,7824 y un recall macro
+de 0,7821. Estos resultados muestran un desempeño
+similar entre las distintas métricas consideradas.
+
+Observamos que las configuraciones con mayor
+desempeño utilizaron una profundidad máxima de 10,
+el valor más alto considerado en el experimento.
+Esto sugiere que permitir una mayor profundidad
+resultó beneficioso dentro del rango evaluado,
+aunque no podemos determinar cómo se comportaría
+el modelo con profundidades superiores.
+
+Por otra parte, como se observa en 
+el Cuadro~\ref{tab:mejores_arboles},
+las diferencias entre las mejores configuraciones halladas 
+fueron reducidas. En particular,
+el segundo modelo, también con criterio
+\texttt{entropy} y profundidad 10, pero con una
+muestra mínima por hoja, obtuvo un F1 macro
+promedio de 0,7810.
+
+Si bien seleccionamos la configuración con mayor
+F1 macro promedio, estos resultados no permiten
+afirmar que su desempeño sea considerablemente
+superior al de otras configuraciones cercanas.
 
 
 \subsection{Evaluación sobre el conjunto de control}
@@ -623,29 +639,6 @@ de las imágenes fueron clasificadas correctamente.
 Sin embargo, el desempeño no fue uniforme
 entre las diez categorías.
 
-En particular, las estrellas (clase 6)
-presentaron el menor F1-score (0,74),
-mientras que las casas (clase 9)
-obtuvieron el menor recall (0,71),
-lo que indica que una proporción importante
-de estas imágenes fue clasificada
-incorrectamente.
-
-Por otra parte, los triángulos (clase 4)
-alcanzaron el mayor recall (0,92), pero
-presentaron una precision de 0,76.
-Esto indica que el modelo logró identificar
-la mayoría de las imágenes de esta categoría,
-aunque también clasificó incorrectamente
-como triángulos dibujos de otras clases.
-
-Estas diferencias muestran que,
-aunque el desempeño general del modelo
-fue cercano al 80\%, existen variaciones
-considerables en su capacidad para
-reconocer las distintas categorías.
-
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]
@@ -656,6 +649,36 @@ reconocer las distintas categorías.
     columnas las clases predichas.}
     \label{fig:matriz_confusion_multiclase}
 \end{figure}
+
+\newpage
+
+Las confusiones más frecuentes siguen dos patrones. 
+Por un lado, varias clases tienden a ser clasificadas 
+como triángulos,  en particular 49 estrellas y 45 casas. 
+Esto explica que los triángulos (clase 4) alcancen 
+el mayor recall (0,92) pero una precision de solo 0,76, 
+y contribuye a que las casas (clase 9) tengan 
+el menor recall (0,71) y las estrellas (clase 6)
+ el menor F1-score (0,74). 
+
+Por otro lado, algunos pares de clases se confunden
+en ambas direcciones, como peces y colectivos 
+(42 peces fueron clasificados como colectivos y 29 
+colectivos como peces) y círculos y cuadrados 
+(30 y 39 casos, respectivamente). 
+Creemos que, en el caso de peces y colectivos, 
+se debe a que ambos suelen dibujarse más anchos 
+que altos: al escalarse, ocupan los laterales del recuadro 
+y dejan vacía la parte inferior, como se observa en la 
+imagen promedio de los peces 
+(Figura~\ref{fig:variabilidad_peces}), por lo que
+sus siluetas resultan similares.
+
+Estas diferencias muestran que,
+aunque el desempeño general del modelo
+fue cercano al 80\%, existen variaciones
+considerables en su capacidad para
+reconocer las distintas categorías.
 
 
 \subsection{Predicciones y estimación del desempeño}
@@ -688,7 +711,6 @@ presentar pequeñas diferencias debido a
 las particularidades de las imágenes
 incluidas en el conjunto de evaluación.
 
-
 Para comparar nuestra estimación con los resultados
 obtenidos durante la selección del modelo, calculamos
 también la accuracy promedio de las cinco particiones
@@ -707,10 +729,11 @@ Por lo tanto, esperamos que la accuracy real
 sobre el conjunto de evaluación
 sea cercana a 0,8003 y, en consecuencia,
 ligeramente superior a la obtenida durante
-la validación cruzada. Sin embargo, reconocemos
-que se trata de una estimación y que el desempeño
-final puede variar según las características
-de las imágenes evaluadas.
+la validación cruzada. Sin embargo, se trata de una 
+estimación: dado que el conjunto de control contiene 
+6.000 imágenes, consideramos razonable que 
+la accuracy real se ubique aproximadamente 
+entre 0,79 y 0,81.
 
 
 % ==================================================
@@ -739,8 +762,16 @@ con un desempeño razonable, incorporar más atributos
 produjo mejoras considerables. No obstante, utilizar
 los 784 píxeles disponibles resultó menos efectivo
 que emplear una selección de 200 atributos.
+
+Esto responde la pregunta planteada en el análisis
+ exploratorio  sobre si era posible descartar atributos: 
+al menos  para distinguir cuadrados de casas, utilizar 
+una cuarta parte  de los píxeles no solo resulta suficiente, 
+sino que mejora el desempeño del modelo.
 La mejor configuración evaluada alcanzó un F1-score
-de 0,975, utilizando 200 píxeles y un único vecino.
+de 0,975, utilizando 200 píxeles y un único vecino,
+aunque probablemente sobreestime el desempeño
+sobre imagenes nuevas. 
 
 Por otra parte, en la clasificación multiclase
 mediante árboles de decisión, seleccionamos los
@@ -755,7 +786,7 @@ esperado sobre las imágenes de evaluación sin utilizar información de sus eti
 Consideramos que la separación entre desarrollo y
 control fue fundamental para obtener una estimación
 más independiente de la capacidad de generalización
-del modelo, aunque que el desempeño
+del modelo, aunque el desempeño
 real puede presentar diferencias.
 
 

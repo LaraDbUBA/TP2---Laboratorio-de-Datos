@@ -28,22 +28,22 @@ semilla = 42
 CARPETA = Path(__file__).resolve().parent
 
 #Creo carpeta para guardar los gráficos 
-GRAFICOS = Path("graficos")
+GRAFICOS = CARPETA / "graficos"
 GRAFICOS.mkdir(exist_ok=True)
 
-clases = pd.read_csv("clases.csv")
-evaluacion = pd.read_csv("evaluacion.csv")
-imagenes = pd.read_csv("imagenes.csv")
+clases = pd.read_csv(CARPETA / "clases.csv")
+evaluacion = pd.read_csv(CARPETA / "evaluacion.csv")
+imagenes = pd.read_csv(CARPETA / "imagenes.csv")
 
 #%% Analisis inicial
 analisisInicial(clases)
 analisisInicial(evaluacion)
 analisisInicial(imagenes)
 analisis_imagenes(imagenes, GRAFICOS) 
-mostrarImagenes(imagenes, 2, semilla=semilla, carpeta_graficos=GRAFICOS)
-mostrarImagenes(imagenes, 9, semilla=semilla, carpeta_graficos=GRAFICOS)
-mostrarImagenes(imagenes, 6, semilla=semilla, carpeta_graficos=GRAFICOS)
-mostrarImagenes(imagenes, 3, semilla=semilla, carpeta_graficos=GRAFICOS)
+mostrarImagenes(imagenes, 2, "Cuadrados", semilla=semilla, carpeta_graficos=GRAFICOS)
+mostrarImagenes(imagenes, 9, "Casas", semilla=semilla, carpeta_graficos=GRAFICOS)
+mostrarImagenes(imagenes, 6, "Estrellas", semilla=semilla, carpeta_graficos=GRAFICOS)
+mostrarImagenes(imagenes, 3, "Peces", semilla=semilla, carpeta_graficos=GRAFICOS)
 
 #%% PREGUNTAS DEL 1(más graficos para entender)
 # 1.a — Variabilidad de atributos; no equivale automáticamente a relevancia predictiva.
@@ -56,7 +56,7 @@ var_entre = promedios.var(axis=0).to_numpy().reshape(28, 28)
 fig, ax = plt.subplots(figsize=(7, 6))
 im = ax.imshow(var_entre, cmap="hot")
 fig.colorbar(im, ax=ax, label="Varianza entre promedios de clase")
-ax.set_title("Píxeles que más distinguen entre clases")
+ax.set_title("Píxeles que más distinguen entre clases", fontweight = "bold")
 fig.savefig(GRAFICOS / "varianza_entre_clases.png", dpi=300, bbox_inches="tight")
 plt.show()
 
@@ -65,7 +65,7 @@ std_total = pix.std().to_numpy().reshape(28, 28)
 fig, ax = plt.subplots(figsize=(7, 6))
 im = ax.imshow(std_total, cmap="viridis")
 fig.colorbar(im, ax=ax, label="Desvío estándar")
-ax.set_title("Desvío estándar por píxel")
+ax.set_title("Desvío estándar por píxel", fontweight = "bold")
 fig.savefig(GRAFICOS / "desvio_total.png", dpi=300, bbox_inches="tight")
 plt.show()
 
@@ -74,16 +74,33 @@ print("Constantes:", (pix.nunique() <= 1).sum()) # =0, ningun pixel vale lo mism
 print("Desvío < 10:", (pix.std() < 10).sum()) # Son 8 píxeles de baja variabilidad; no son estrictamente constantes.
 
 # Gráfico 3: comparación de píxeles por clase
-fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-imagenes.boxplot(column="pixel194", by="label", ax=axes[0])
-imagenes.boxplot(column="pixel0", by="label", ax=axes[1])
-axes[0].set_title("Píxel 194")
-axes[1].set_title("Píxel 0")
-for ax in axes:
-    ax.set_xlabel("Clase")
-    ax.set_ylabel("Intensidad del píxel")
+nombres_clases = []
+for nombre in clases["nombre"]:
+    nombres_clases.append(nombre.capitalize())
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
+imagenes.boxplot(column="pixel194", by="label", ax=axes[0], grid=False,
+                 flierprops=dict(marker="o", markersize=2, alpha=0.3),
+                 medianprops=dict(color="tab:blue", linewidth=2))
+imagenes.boxplot(column="pixel0", by="label", ax=axes[1], grid=False,
+                 flierprops=dict(marker="o", markersize=2, alpha=0.3),
+                 medianprops=dict(color="tab:blue", linewidth=2))
+
+axes[0].set_title("Píxel 194 (borde derecho)")
+axes[0].set_ylim(-5, 260)
+axes[0].set_ylabel("Intensidad del píxel (escala 0 a 255)")
+
+axes[1].set_title("Píxel 0 (esquina superior izquierda)")
+axes[1].set_ylim(-1, 35)
+axes[1].set_ylabel("Intensidad del píxel (escala 0 a 35)")
+
+axes[0].set_xticks(range(1, 11), nombres_clases, rotation=45, ha="right")
+axes[0].set_xlabel("")
+axes[1].set_xticks(range(1, 11), nombres_clases, rotation=45, ha="right")
+axes[1].set_xlabel("")
+
 fig.suptitle("")
-plt.tight_layout()
+fig.tight_layout()
 fig.savefig(GRAFICOS / "comparacion_pixeles.png", dpi=300, bbox_inches="tight")
 plt.show()
 
@@ -98,9 +115,16 @@ d_6_6 = analizarClase(imagenes, 6, semilla=semilla)
 d_9_9 = analizarClase(imagenes, 9, semilla=semilla)
 
 fig, ax = plt.subplots(figsize=(10, 5))
-ax.boxplot([d_2_9, d_2_6, d_9_6, d_2_2, d_6_6, d_9_9], tick_labels=["2 vs 9", "2 vs 6", "9 vs 6", "2 vs 2", "6 vs 6", "9 vs 9"])
+ax.boxplot([d_2_9, d_2_6, d_9_6, d_2_2, d_6_6, d_9_9],
+           tick_labels=["Cuadrado\nvs Casa", "Cuadrado\nvs Estrella", "Casa\nvs Estrella",
+                        "Cuadrado\nvs Cuadrado", "Estrella\nvs Estrella", "Casa\nvs Casa"],
+           flierprops=dict(marker="o", markersize=2, alpha=0.3),
+           medianprops=dict(color="tab:blue", linewidth=2))
+ax.axvline(3.5, color="gray", linestyle="--", linewidth=1)
+ax.text(2, 4650, "Entre clases", ha="center", fontsize=12, fontweight="bold")
+ax.text(5, 4650, "Dentro de cada clase", ha="center", fontsize=12, fontweight="bold")
+ax.set_ylim(900, 4850)
 ax.set_ylabel("Distancia euclídea")
-ax.set_title("Distancias dentro de cada clase y entre clases")
 fig.tight_layout()
 fig.savefig(GRAFICOS / "distancias_clases.png", dpi=300, bbox_inches="tight")
 plt.show()
@@ -118,12 +142,19 @@ print("Mediana casas:", np.median(d_9_9))
 # Grafico 5 para responder 1.c
 # ¿Son todas las imagenes muy similares entre si?(las de clase3:pez)
 c3 = imagenes[imagenes['label'] == 3].drop(columns='label')
-fig,axes = plt.subplots(1,2, figsize=(9,4))
-axes[0].imshow(c3.mean().to_numpy().reshape(28,28),cmap='gray')
-axes[0].set_title("Pez promedio")
-axes[1].imshow(c3.std().to_numpy().reshape(28,28),cmap='hot')
-axes[1].set_title("Desvio entre peces")
-for ax in axes: ax.axis("off")
+fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+
+im0 = axes[0].imshow(c3.mean().to_numpy().reshape(28, 28), cmap="gray", vmin=0, vmax=255)
+fig.colorbar(im0, ax=axes[0], fraction=0.046, pad=0.04, label="Intensidad promedio")
+
+im1 = axes[1].imshow(c3.std().to_numpy().reshape(28, 28), cmap="viridis")
+fig.colorbar(im1, ax=axes[1], fraction=0.046, pad=0.04, label="Desvío estándar")
+
+axes[0].set_title("Intensidad promedio por píxel", fontweight = "bold")
+axes[1].set_title("Desvío estándar por píxel", fontweight = "bold")
+
+for ax in axes:
+    ax.axis("off")
 fig.tight_layout()
 fig.savefig(GRAFICOS / "peces_promedio_desvio.png", dpi=300, bbox_inches="tight")
 plt.show()
@@ -133,9 +164,15 @@ d_3_2 = compararClases(imagenes, 3, 2, semilla=semilla)
 # Reutilizamos d_2_2 calculado para el análisis 1.b.
 
 fig, ax = plt.subplots(figsize=(8, 5))
-ax.boxplot([d_3_3, d_3_2, d_2_2], tick_labels=["3 vs 3", "3 vs 2", "2 vs 2"])
+ax.boxplot([d_3_2, d_3_3, d_2_2],
+           tick_labels=["Pez\nvs Cuadrado", "Pez\nvs Pez", "Cuadrado\nvs Cuadrado"],
+           flierprops=dict(marker="o", markersize=2, alpha=0.3),
+           medianprops=dict(color="tab:blue", linewidth=2))
+ax.axvline(1.5, color="gray", linestyle="--", linewidth=1)
+ax.text(1, 4250, "Entre clases", ha="center", fontsize=12, fontweight="bold")
+ax.text(2.5, 4250, "Dentro de cada clase", ha="center", fontsize=12, fontweight="bold")
+ax.set_ylim(900, 4450)
 ax.set_ylabel("Distancia euclídea")
-ax.set_title("Distancias dentro y entre las clases pez y cuadrado")
 fig.tight_layout()
 fig.savefig(GRAFICOS / "distancias_peces.png", dpi=300, bbox_inches="tight")
 plt.show()
@@ -273,15 +310,16 @@ print(res_e.pivot(index="n_atributos", columns = "k", values="f1").round(3))
 fig,axs = plt.subplots(1,2,figsize=(12,4))
 for n in ns:
     sub = res_e[res_e.n_atributos == n]
-    axs[0].plot(sub.k,sub.f1, marker = "o", label= f"{n} atributos")
-axs[0].set(xlabel="k", ylabel = "f1",title = "f1 vs k")
-axs[0].legend()
+    axs[0].plot(sub.k,sub.f1, marker = "o", label= f"{n}")
+axs[0].set(xlabel="k", ylabel = "F1",title = "F1 vs k")
+axs[0].legend(title = "Atributos", bbox_to_anchor = (1,1), loc = "upper left")
 
 for k in [1,5,25]:
     sub = res_e[res_e.k == k]
-    axs[1].plot(sub.n_atributos,sub.f1, marker = "o", label= f" k = {k}")
-axs[1].set(xlabel="numero de atributos", ylabel = "f1",title = "f1 vs numero de atributos")
-axs[1].legend()
+    axs[1].plot(sub.n_atributos,sub.f1, marker = "o", label= f" {k}")
+axs[1].set(xlabel="numero de atributos (escala log)", ylabel = "F1",title = "F1 vs numero de atributos", xscale = "log")
+axs[1].set_xticks(ns, labels=ns)
+axs[1].legend(title = "Valor k")
 plt.tight_layout()
 fig.savefig(GRAFICOS / "comparacion_f1_atributos.png", dpi=300, bbox_inches="tight")
 plt.show()
@@ -422,7 +460,7 @@ print("Precision macro:", precision_score(
 print("Recall macro:", recall_score(
     y_held, y_pred, average="macro", zero_division=0
 ))
-print("F1 macro:", f1_score(
+print("f1 macro:", f1_score(
     y_held, y_pred, average="macro", zero_division=0
 ))
 
@@ -431,6 +469,7 @@ print("F1 macro:", f1_score(
 print("\nReporte de clasificación:")
 print(classification_report(y_held, y_pred, zero_division=0))
 
+# %%
 # Matriz de confusión
 etiquetas = sorted(y_multiclase.unique())
 matriz = confusion_matrix(y_held, y_pred, labels=etiquetas)
@@ -439,12 +478,21 @@ fig, ax = plt.subplots(figsize=(9, 7))
 im = ax.imshow(matriz, cmap="Blues")
 
 fig.colorbar(im, ax=ax)
-ax.set_xlabel("Clase predicha")
-ax.set_ylabel("Clase real")
-ax.set_title("Matriz de confusión - held-out")
+ax.set_xlabel("Clase predicha",fontweight="bold", fontsize=12)
+ax.set_ylabel("Clase real", fontweight="bold", fontsize=12)
+ax.set_title("Matriz de confusión - held-out",fontweight="bold", fontsize=15)
+    
+ax.set_xticks(range(len(nombres_clases)), nombres_clases, rotation=45, ha="center")
+ax.set_yticks(range(len(nombres_clases)), nombres_clases, rotation=45)
 
-ax.set_xticks(range(len(etiquetas)), etiquetas)
-ax.set_yticks(range(len(etiquetas)), etiquetas)
+umbral_color = matriz.max() / 2
+
+for fila in range(matriz.shape[0]):
+    for col in range(matriz.shape[1]):
+        valor = matriz[fila, col]
+        ax.text(col, fila, valor,
+                ha="center", va="center", fontsize=8,
+                color="white" if valor > umbral_color else "black")
 
 fig.tight_layout()
 fig.savefig(GRAFICOS / "matriz_confusion_multiclase.png", dpi=300, bbox_inches="tight")
@@ -472,6 +520,20 @@ df_predicciones = pd.DataFrame({
 })
 
 performance = accuracy_score(y_held, y_pred)  # Estimación sobre held-out, no sobre dev
+
+# Margen de la estimación (3.e): la accuracy de held-out (0,8003) se midió sobre
+# 6.000 imágenes concretas; con otro conjunto parecido daría algo distinto.
+# Para estimar cuánto podría variar usamos bootstrapping: sorteamos 6.000
+# imágenes del held-out con reposición, calculamos la accuracy y repetimos
+# 2.000 veces. El rango que contiene al 95% de esas accuracies es el margen
+# que reportamos en el informe (aprox. entre 0,79 y 0,81).
+
+aciertos = (y_pred == y_held.to_numpy())
+rng = np.random.default_rng(semilla)
+accs_boot = [aciertos[rng.integers(0, len(aciertos), len(aciertos))].mean() for _ in range(2000)]
+lim_inf, lim_sup = np.percentile(accs_boot, [2.5, 97.5])
+print(f"Accuracy estimada: {performance:.4f} (95% de las simulaciones entre {lim_inf:.3f} y {lim_sup:.3f})")
+
 nombre_grupo = "Normalizados"
 
 nombre_archivo = (

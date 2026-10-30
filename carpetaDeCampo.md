@@ -235,3 +235,33 @@ validación cruzada. Ambos resultados son cercanos y sugieren un rendimiento con
 datos no utilizados durante el entrenamiento y la selección del modelo. De todos modos, el 
 desempeño varía entre clases, por lo que la matriz de confusión permite identificar cuáles 
 presentan mayores dificultades de clasificación.
+
+
+---
+27-10
+Armé una lista de posibles mejoras (abajo, en los días siguientes, lo que fui haciendo).
+
+---
+28-10
+Código / entrega:
+- Rutas: los read_csv y la carpeta de gráficos ahora usan CARPETA (la carpeta del .py). Antes dependía de dónde estuviera parado Spyder; por bloques #%% podía fallar.
+- Renombré el principal a TP-02-Normalizados.py (el enunciado pide TP-02-nombregrupo.py, con guion entre TP y 02).
+- README.md -> README.txt (lo pide el enunciado). Saqué el "<<<<<<< HEAD" que había quedado de un merge. Agregué que los 3 CSV del dataset no se entregan y van en la misma carpeta que los .py, y una sección "Cómo ejecutar".
+Gráficos:
+- comparacion_f1_atributos (2.e): eje X logarítmico con marcas en los valores probados (antes 1, 2, 3, 5 y 10 quedaban amontonados en el cero), leyendas con título ("Atributos", "Valor k"), la del panel izquierdo afuera para que no tape las líneas.
+- Matriz de confusión: nombres de las clases en los ejes (en vez de 0-9) y el número escrito en cada celda.
+
+---
+29-10
+Informe (main.tex):
+- 1.a: "lateral izquierdo" -> "los laterales" (el punto más alto del mapa está a la derecha, el píxel 194). Agregué de ejemplo los píxeles que imprime analisis_imagenes: 46 a 48 (borde superior) y 166, 194 y 222 (borde derecho).
+- 2.d: expliqué por qué el mejor trío fue uno al azar: los primeros del ranking (47, 48, 49) son vecinos y dan información redundante.
+- 3.3 y Conclusiones: aclaré que el F1 de 0,975 probablemente sobreestima el desempeño real, porque se eligió como el mejor de 80 configuraciones usando el mismo test (justamente lo que en el punto 3 se evita con dev/held-out).
+- Conclusiones: uní el 1.a con el 2.e: con 200 de 784 píxeles (un cuarto) KNN anda mejor, o sea que sí se pueden descartar atributos (al menos para cuadrado vs. casa).
+- 4.3: junté los párrafos de la matriz en uno con números: dos patrones de confusión. (1) El triángulo "absorbe" otras clases: 49 estrellas y 45 casas predichas como triángulo -> explica su precision de 0,76 y el recall bajo de las casas. (2) Pares que se confunden en las dos direcciones: pez <-> colectivo (42 y 29) y círculo <-> cuadrado (30 y 39). Hipótesis: peces y colectivos son más anchos que altos, ocupan los costados y dejan vacía la parte de abajo (se ve en la Figura 5).
+- 4.4: agregué el margen de la estimación: con 6.000 imágenes, la accuracy real debería estar entre ~0,79 y ~0,81.
+- 3.e: agregué el cálculo del margen 0,79-0,81 con bootstrapping (2000 remuestreos del held-out, con la semilla) y un print. Así el número del informe sale del código.
+- Figura 2 (comparacion_pixeles): nombres de clases, títulos con dónde está cada píxel, escalas explícitas (0-255 y 0-35), outliers más chicos y mediana marcada.
+- Figura 3 (ejemplos): mostrarImagenes ahora recibe el nombre de la clase. Título tipo "Cuadrados (clase 2)", más grande y sin el hueco que había (cambia funciones_tp2.py y las 4 llamadas).
+- Figuras 4 y 6 (distancias): nombres en vez de "2 vs 9", separadas en "Entre clases" y "Dentro de cada clase", mismo estilo que la Figura 2. En la 6 reordené las cajas para poder agruparlas.
+- Figura 5 (peces): barras de color en los dos paneles (antes no tenía escala), promedio con escala fija 0-255, desvío con la misma paleta que el de la Figura 1, títulos de panel más claros.
